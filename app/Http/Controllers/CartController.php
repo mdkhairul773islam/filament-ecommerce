@@ -80,8 +80,8 @@ class CartController extends Controller
 
     private function getCart()
     {
-        if (Auth::check()) {
-            return Cart::where('user_id', Auth::id())->first();
+        if (Auth::guard('web')->check()) {
+            return Cart::where('user_id', Auth::guard('web')->id())->first();
         }
 
         $sessionId = session()->getId();
@@ -90,8 +90,8 @@ class CartController extends Controller
 
     private function getOrCreateCart()
     {
-        if (Auth::check()) {
-            return Cart::firstOrCreate(['user_id' => Auth::id()]);
+        if (Auth::guard('web')->check()) {
+            return Cart::firstOrCreate(['user_id' => Auth::guard('web')->id()]);
         }
 
         $sessionId = session()->getId();

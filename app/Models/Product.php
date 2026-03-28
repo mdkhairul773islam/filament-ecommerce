@@ -18,6 +18,7 @@ class Product extends Model
         'content',
         'price',
         'discount_price',
+        'discount_type',
         'image',
         'images',
         'stock',
@@ -25,6 +26,7 @@ class Product extends Model
         'duration',
         'is_featured',
         'is_active',
+        'show_discount_badge',
     ];
 
     protected $casts = [
@@ -33,6 +35,7 @@ class Product extends Model
         'images' => 'array',
         'is_featured' => 'boolean',
         'is_active' => 'boolean',
+        'show_discount_badge' => 'boolean',
     ];
 
     protected static function boot()

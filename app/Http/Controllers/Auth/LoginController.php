@@ -21,7 +21,10 @@ class LoginController extends Controller
             'password' => ['required'],
         ]);
 
-        if (Auth::attempt($credentials, $request->boolean('remember'))) {
+        // Add is_admin = false check for customer login
+        $credentials['is_admin'] = false;
+
+        if (Auth::guard('web')->attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
 
             return redirect()->intended('/dashboard');
@@ -34,9 +37,8 @@ class LoginController extends Controller
 
     public function destroy(Request $request)
     {
-        Auth::logout();
+        Auth::guard('web')->logout();
 
-        $request->session()->invalidate();
         $request->session()->regenerateToken();
 
         return redirect('/');

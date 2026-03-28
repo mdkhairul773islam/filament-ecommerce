@@ -35,11 +35,20 @@ class ProductForm
                 TextInput::make('price')
                     ->required()
                     ->numeric()
-                    ->prefix('$'),
+                    ->prefix('৳'),
                 TextInput::make('discount_price')
                     ->numeric()
                     ->default(null)
-                    ->prefix('$'),
+                    ->prefix('৳')
+                    ->helperText('Enter flat amount or percentage value'),
+                Select::make('discount_type')
+                    ->options([
+                        'percentage' => 'Percentage (%)',
+                        'flat' => 'Flat Amount (৳)',
+                    ])
+                    ->default('percentage')
+                    ->required()
+                    ->helperText('Select how discount should be applied'),
                 FileUpload::make('image')
                     ->image()
                     ->disk('public')
@@ -62,6 +71,10 @@ class ProductForm
                     ->required(),
                 Toggle::make('is_active')
                     ->required(),
+                Toggle::make('show_discount_badge')
+                    ->label('Show Discount Badge')
+                    ->helperText('Display discount percentage badge on product cards')
+                    ->default(true),
             ]);
     }
 }

@@ -38,15 +38,15 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'auth' => [
-                'user' => $request->user(),
+                'user' => $request->user('web'),
             ],
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),
             ],
             'cartItemsCount' => function () use ($request) {
-                if ($request->user()) {
-                    $cart = \App\Models\Cart::where('user_id', $request->user()->id)->first();
+                if ($request->user('web')) {
+                    $cart = \App\Models\Cart::where('user_id', $request->user('web')->id)->first();
                 } else {
                     $cart = \App\Models\Cart::where('session_id', session()->getId())->first();
                 }

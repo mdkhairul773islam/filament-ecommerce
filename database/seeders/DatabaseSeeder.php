@@ -27,14 +27,16 @@ class DatabaseSeeder extends Seeder
             'email' => 'admin@example.com',
             'password' => Hash::make('password'),
             'email_verified_at' => now(),
+            'is_admin' => true,
         ]);
 
-        // Create test user
+        // Create customer user
         User::create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+            'name' => 'Customer User',
+            'email' => 'customer@example.com',
             'password' => Hash::make('password'),
             'email_verified_at' => now(),
+            'is_admin' => false,
         ]);
 
         // Create categories
@@ -72,6 +74,8 @@ class DatabaseSeeder extends Seeder
             for ($i = 1; $i <= 5; $i++) {
                 $type = $i % 2 == 0 ? 'course' : 'book';
                 $price = rand(500, 5000);
+                $hasDiscount = $i <= 3;
+                $discountType = $i == 1 ? 'flat' : 'percentage';
                 
                 Product::create([
                     'category_id' => $category->id,
@@ -81,12 +85,14 @@ class DatabaseSeeder extends Seeder
                     'description' => 'This is a comprehensive ' . $type . ' about ' . $category->name . '. Learn everything you need to know.',
                     'content' => 'Detailed content about this ' . $type . '. Includes practical examples and exercises.',
                     'price' => $price,
-                    'discount_price' => $i == 1 ? $price * 0.8 : null,
+                    'discount_price' => $hasDiscount ? ($discountType == 'flat' ? rand(100, 500) : rand(10, 30)) : null,
+                    'discount_type' => $discountType,
                     'stock' => rand(10, 100),
                     'author' => 'Author ' . rand(1, 10),
                     'duration' => $type == 'course' ? rand(10, 50) . ' hours' : rand(200, 500) . ' pages',
                     'is_featured' => $i <= 2,
                     'is_active' => true,
+                    'show_discount_badge' => true,
                 ]);
             }
         }

@@ -45,7 +45,13 @@ export default function ProductDetail({ auth, product }) {
                             <div className="mt-3">
                                 <h2 className="sr-only">Product information</h2>
                                 <p className="text-3xl text-gray-900">
-                                    ৳{parseFloat(product.discount_price || product.price).toFixed(2)}
+                                    ৳{product.discount_price 
+                                        ? (product.discount_type === 'flat' 
+                                            ? (parseFloat(product.price) - parseFloat(product.discount_price)).toFixed(2)
+                                            : (parseFloat(product.price) * (1 - parseFloat(product.discount_price) / 100)).toFixed(2)
+                                          )
+                                        : parseFloat(product.price).toFixed(2)
+                                    }
                                     {product.discount_price && (
                                         <span className="ml-3 text-xl text-gray-500 line-through">
                                             ৳{parseFloat(product.price).toFixed(2)}

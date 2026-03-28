@@ -11,11 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('carts', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->nullable()->constrained()->cascadeOnDelete();
-            $table->string('session_id')->nullable();
-            $table->timestamps();
+        Schema::table('products', function (Blueprint $table) {
+            $table->enum('discount_type', ['percentage', 'flat'])->default('percentage')->after('discount_price');
         });
     }
 
@@ -24,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('carts');
+        Schema::table('products', function (Blueprint $table) {
+            $table->dropColumn('discount_type');
+        });
     }
 };

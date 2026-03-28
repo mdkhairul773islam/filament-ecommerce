@@ -12,8 +12,8 @@ class OrderController extends Controller
     public function index()
     {
         $orders = Order::with('items.product', 'payment')
-            ->when(Auth::check(), function ($query) {
-                $query->where('user_id', Auth::id());
+            ->when(Auth::guard('web')->check(), function ($query) {
+                $query->where('user_id', Auth::guard('web')->id());
             })
             ->latest()
             ->paginate(10);
@@ -30,7 +30,7 @@ class OrderController extends Controller
             ->firstOrFail();
 
         // Allow viewing if user owns the order or if not authenticated (for guest orders)
-        if (Auth::check() && $order->user_id !== Auth::id()) {
+        if (Auth::guard('web')->check() && $order->user_id !== Auth::guard('web')->id()) {
             abort(403);
         }
 

@@ -58,35 +58,65 @@ export default function Home({ auth, featuredProducts, categories }) {
                     <h2 className="text-2xl font-extrabold text-gray-900 mb-6">Featured Products</h2>
                     <div className="grid grid-cols-1 gap-y-10 sm:grid-cols-2 gap-x-6 lg:grid-cols-4 xl:gap-x-8">
                         {featuredProducts?.map((product) => (
-                            <Link
-                                key={product.id}
-                                href={`/products/${product.slug}`}
-                                className="group"
-                            >
+                            <div key={product.id} className="group relative">
                                 <div className="w-full aspect-w-1 aspect-h-1 bg-gray-200 rounded-lg overflow-hidden xl:aspect-w-7 xl:aspect-h-8">
-                                    {product.image ? (
-                                        <img
-                                            src={`/storage/${product.image}`}
-                                            alt={product.name}
-                                            className="w-full h-48 object-center object-cover group-hover:opacity-75"
-                                        />
-                                    ) : (
-                                        <div className="w-full h-48 bg-gray-300 flex items-center justify-center">
-                                            <span className="text-gray-500">No image</span>
+                                    <Link href={`/products/${product.slug}`}>
+                                        {product.image ? (
+                                            <img
+                                                src={`/storage/${product.image}`}
+                                                alt={product.name}
+                                                className="w-full h-48 object-center object-cover group-hover:opacity-75"
+                                            />
+                                        ) : (
+                                            <div className="w-full h-48 bg-gray-300 flex items-center justify-center">
+                                                <span className="text-gray-500">No image</span>
+                                            </div>
+                                        )}
+                                    </Link>
+                                    {/* Discount Badge */}
+                                    {product.discount_price && product.show_discount_badge && (
+                                        <div className="absolute top-2 right-2">
+                                            <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">
+                                                {product.discount_type === 'flat' 
+                                                    ? `৳${parseFloat(product.discount_price).toFixed(0)} OFF`
+                                                    : `${Math.round(parseFloat(product.discount_price))}% OFF`
+                                                }
+                                            </span>
                                         </div>
                                     )}
+                                    {/* Add to Cart Icon */}
+                                    <button
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            window.location.href = `/products/${product.slug}`;
+                                        }}
+                                        className="absolute bottom-2 right-2 bg-indigo-600 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-indigo-700"
+                                        title="Add to Cart"
+                                    >
+                                        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                                        </svg>
+                                    </button>
                                 </div>
-                                <h3 className="mt-4 text-sm text-gray-700">{product.name}</h3>
-                                <p className="mt-1 text-sm text-gray-500">{product.type}</p>
-                                <p className="mt-1 text-lg font-medium text-gray-900">
-                                    ৳{parseFloat(product.discount_price || product.price).toFixed(2)}
-                                    {product.discount_price && (
-                                        <span className="ml-2 text-sm text-gray-500 line-through">
-                                            ৳{parseFloat(product.price).toFixed(2)}
-                                        </span>
-                                    )}
-                                </p>
-                            </Link>
+                                <Link href={`/products/${product.slug}`}>
+                                    <h3 className="mt-4 text-sm text-gray-700">{product.name}</h3>
+                                    <p className="mt-1 text-sm text-gray-500">{product.type}</p>
+                                    <p className="mt-1 text-lg font-medium text-gray-900">
+                                        ৳{product.discount_price 
+                                            ? (product.discount_type === 'flat' 
+                                                ? (parseFloat(product.price) - parseFloat(product.discount_price)).toFixed(2)
+                                                : (parseFloat(product.price) * (1 - parseFloat(product.discount_price) / 100)).toFixed(2)
+                                              )
+                                            : parseFloat(product.price).toFixed(2)
+                                        }
+                                        {product.discount_price && (
+                                            <span className="ml-2 text-sm text-gray-500 line-through">
+                                                ৳{parseFloat(product.price).toFixed(2)}
+                                            </span>
+                                        )}
+                                    </p>
+                                </Link>
+                            </div>
                         ))}
                     </div>
                 </div>

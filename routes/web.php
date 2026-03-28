@@ -19,7 +19,7 @@ Route::get('/products', [ProductController::class, 'index'])->name('products.ind
 Route::get('/products/{slug}', [ProductController::class, 'show'])->name('products.show');
 
 // Guest routes
-Route::middleware('guest')->group(function () {
+Route::middleware('guest:web')->group(function () {
     Route::get('/login', [LoginController::class, 'create'])->name('login');
     Route::post('/login', [LoginController::class, 'store']);
     Route::get('/register', [RegisterController::class, 'create'])->name('register');
@@ -42,7 +42,7 @@ Route::post('/payment/{order}/confirm', [PaymentController::class, 'confirm'])->
 Route::post('/payment/callback', [PaymentController::class, 'callback'])->name('payment.callback');
 
 // Authenticated routes
-Route::middleware('auth')->group(function () {
+Route::middleware('auth:web')->group(function () {
     Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
     
     // Dashboard

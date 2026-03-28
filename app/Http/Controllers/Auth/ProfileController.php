@@ -16,7 +16,7 @@ class ProfileController extends Controller
 
     public function update(Request $request)
     {
-        $user = $request->user();
+        $user = $request->user('web');
 
         $request->validate([
             'name' => 'required|string|max:255',
@@ -34,11 +34,11 @@ class ProfileController extends Controller
     public function updatePassword(Request $request)
     {
         $request->validate([
-            'current_password' => ['required', 'current_password'],
+            'current_password' => ['required', 'current_password:web'],
             'password' => ['required', 'min:8', 'confirmed'],
         ]);
 
-        $request->user()->update([
+        $request->user('web')->update([
             'password' => Hash::make($request->password),
         ]);
 

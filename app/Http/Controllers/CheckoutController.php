@@ -64,7 +64,7 @@ class CheckoutController extends Controller
 
             // Create order
             $order = Order::create([
-                'user_id' => Auth::id(),
+                'user_id' => Auth::guard('web')->id(),
                 'order_number' => 'ORD-' . strtoupper(uniqid()),
                 'status' => 'pending',
                 'subtotal' => $subtotal,
@@ -119,8 +119,8 @@ class CheckoutController extends Controller
 
     private function getCart()
     {
-        if (Auth::check()) {
-            return Cart::where('user_id', Auth::id())->first();
+        if (Auth::guard('web')->check()) {
+            return Cart::where('user_id', Auth::guard('web')->id())->first();
         }
 
         $sessionId = session()->getId();
