@@ -101,7 +101,7 @@ export default function OrdersIndex({ orders }) {
                                                         {order.items?.length} item{order.items?.length !== 1 ? 's' : ''}
                                                     </p>
                                                     <p className="text-lg font-medium text-gray-900 mt-1">
-                                                        Total: ৳{order.total}
+                                                        Total: ৳{parseFloat(order.total).toFixed(2)}
                                                     </p>
                                                 </div>
                                                 <div className="flex items-center space-x-3">

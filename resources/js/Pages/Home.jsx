@@ -79,10 +79,10 @@ export default function Home({ auth, featuredProducts, categories }) {
                                 <h3 className="mt-4 text-sm text-gray-700">{product.name}</h3>
                                 <p className="mt-1 text-sm text-gray-500">{product.type}</p>
                                 <p className="mt-1 text-lg font-medium text-gray-900">
-                                    ৳{product.discount_price || product.price}
+                                    ৳{(product.discount_price || product.price).toFixed(2)}
                                     {product.discount_price && (
                                         <span className="ml-2 text-sm text-gray-500 line-through">
-                                            ৳{product.price}
+                                            ৳{parseFloat(product.price).toFixed(2)}
                                         </span>
                                     )}
                                 </p>

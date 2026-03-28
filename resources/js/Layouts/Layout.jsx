@@ -4,16 +4,31 @@ import { useEffect, useState, useRef } from 'react';
 export default function Layout({ children }) {
     const { auth, flash, cartItemsCount } = usePage().props;
     const [userMenuOpen, setUserMenuOpen] = useState(false);
+    const [notifications, setNotifications] = useState([]);
     const userMenuRef = useRef(null);
 
     useEffect(() => {
         if (flash.success) {
-            alert(flash.success);
+            addNotification(flash.success, 'success');
         }
         if (flash.error) {
-            alert(flash.error);
+            addNotification(flash.error, 'error');
         }
     }, [flash]);
+
+    const addNotification = (message, type) => {
+        const id = Date.now();
+        setNotifications(prev => [...prev, { id, message, type }]);
+        
+        // Auto remove after 4 seconds
+        setTimeout(() => {
+            removeNotification(id);
+        }, 4000);
+    };
+
+    const removeNotification = (id) => {
+        setNotifications(prev => prev.filter(notification => notification.id !== id));
+    };
 
     useEffect(() => {
         function handleClickOutside(event) {
@@ -143,6 +158,75 @@ export default function Layout({ children }) {
                     </p>
                 </div>
             </footer>
+
+            {/* Toast Notifications */}
+            <div className="fixed top-4 right-4 z-50 space-y-3">
+                {notifications.map((notification) => (
+                    <div
+                        key={notification.id}
+                        className={`flex items-center gap-4 min-w-[340px] max-w-md p-4 rounded-xl shadow-2xl border-2 transform transition-all duration-500 ease-out bg-white ${
+                            notification.type === 'success'
+                                ? 'border-green-200'
+                                : 'border-red-200'
+                        }`}
+                        style={{
+                            animation: 'slideIn 0.3s ease-out'
+                        }}
+                    >
+                        {/* Icon */}
+                        <div className="shrink-0">
+                            {notification.type === 'success' ? (
+                                <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
+                                    <svg className="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                </div>
+                            ) : (
+                                <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-pink-600 rounded-xl flex items-center justify-center shadow-lg">
+                                    <svg className="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Message */}
+                        <div className="flex-1">
+                            <p className={`font-bold text-sm leading-relaxed ${
+                                notification.type === 'success'
+                                    ? 'text-gray-800'
+                                    : 'text-gray-800'
+                            }`}>
+                                {notification.message}
+                            </p>
+                        </div>
+
+                        {/* Close Button */}
+                        <button
+                            onClick={() => removeNotification(notification.id)}
+                            className="shrink-0 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg p-1.5 transition-colors"
+                        >
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                ))}
+            </div>
+
+            {/* Add keyframes for animation */}
+            <style jsx>{`
+                @keyframes slideIn {
+                    from {
+                        transform: translateX(400px);
+                        opacity: 0;
+                    }
+                    to {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
+                }
+            `}</style>
         </div>
     );
 }

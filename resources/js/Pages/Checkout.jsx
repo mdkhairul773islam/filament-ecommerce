@@ -234,7 +234,7 @@ export default function Checkout({ auth, cart, paymentMethods }) {
                                                 <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
                                             </div>
                                             <p className="text-sm font-medium text-gray-900">
-                                                ৳{item.price * item.quantity}
+                                                ৳{(item.price * item.quantity).toFixed(2)}
                                             </p>
                                         </li>
                                     ))}

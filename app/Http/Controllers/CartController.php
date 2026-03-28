@@ -31,7 +31,7 @@ class CartController extends Controller
         $quantity = $request->quantity ?? 1;
 
         if ($product->stock < $quantity) {
-            return back()->with('error', 'Insufficient stock');
+            return back()->with('error', '⚠️ Insufficient stock available!');
         }
 
         $cart = $this->getOrCreateCart();
@@ -41,15 +41,15 @@ class CartController extends Controller
         if ($cartItem) {
             $cartItem->quantity += $quantity;
             $cartItem->save();
+            return redirect()->route('cart.index')->with('success', '✅ Product quantity updated in cart!');
         } else {
             $cart->items()->create([
                 'product_id' => $product->id,
                 'quantity' => $quantity,
                 'price' => $product->discount_price ?? $product->price,
             ]);
+            return redirect()->route('cart.index')->with('success', '🛒 Product added to cart successfully!');
         }
-
-        return redirect()->route('cart.index')->with('success', 'Product added to cart');
     }
 
     public function update(Request $request, CartItem $cartItem)
@@ -61,21 +61,21 @@ class CartController extends Controller
         $product = $cartItem->product;
 
         if ($product->stock < $request->quantity) {
-            return back()->with('error', 'Insufficient stock');
+            return back()->with('error', '⚠️ Insufficient stock available!');
         }
 
         $cartItem->update([
             'quantity' => $request->quantity,
         ]);
 
-        return back()->with('success', 'Cart updated');
+        return back()->with('success', '✏️ Cart quantity updated successfully!');
     }
 
     public function destroy(CartItem $cartItem)
     {
         $cartItem->delete();
 
-        return back()->with('success', 'Item removed from cart');
+        return back()->with('success', '🗑️ Item removed from cart!');
     }
 
     private function getCart()

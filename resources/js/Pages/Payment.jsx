@@ -154,17 +154,17 @@ export default function Payment({ order, paymentMethod }) {
                             <div className="space-y-3">
                                 <div className="flex justify-between text-sm">
                                     <span className="text-gray-600">Subtotal:</span>
-                                    <span className="font-semibold text-gray-900">৳{order.subtotal}</span>
+                                    <span className="font-semibold text-gray-900">৳{parseFloat(order.subtotal).toFixed(2)}</span>
                                 </div>
                                 {order.discount > 0 && (
                                     <div className="flex justify-between text-sm">
                                         <span className="text-gray-600">Discount:</span>
-                                        <span className="font-semibold text-green-600">-৳{order.discount}</span>
+                                        <span className="font-semibold text-green-600">-৳{parseFloat(order.discount).toFixed(2)}</span>
                                     </div>
                                 )}
                                 <div className="border-t-2 border-gray-300 pt-3 flex justify-between">
                                     <span className="text-lg font-bold text-gray-900">Total:</span>
-                                    <span className="text-lg font-bold text-indigo-600">৳{order.total}</span>
+                                    <span className="text-lg font-bold text-indigo-600">৳{parseFloat(order.total).toFixed(2)}</span>
                                 </div>
                             </div>
                         </div>
