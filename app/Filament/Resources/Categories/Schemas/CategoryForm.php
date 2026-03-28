@@ -22,7 +22,12 @@ class CategoryForm
                     ->default(null)
                     ->columnSpanFull(),
                 FileUpload::make('image')
-                    ->image(),
+                    ->image()
+                    ->disk('public')
+                    ->visibility('public')
+                    ->getUploadedFileNameForStorageUsing(
+                        fn ($file) => 'categories/' . $file->hashName()
+                    ),
                 Toggle::make('is_active')
                     ->required(),
             ]);

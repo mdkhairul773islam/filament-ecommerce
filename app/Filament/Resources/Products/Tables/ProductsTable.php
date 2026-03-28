@@ -30,7 +30,8 @@ class ProductsTable
                 TextColumn::make('discount_price')
                     ->money()
                     ->sortable(),
-                ImageColumn::make('image'),
+                ImageColumn::make('image')
+                    ->disk('public'),
                 TextColumn::make('stock')
                     ->numeric()
                     ->sortable(),

@@ -41,7 +41,12 @@ class ProductForm
                     ->default(null)
                     ->prefix('$'),
                 FileUpload::make('image')
-                    ->image(),
+                    ->image()
+                    ->disk('public')
+                    ->visibility('public')
+                    ->getUploadedFileNameForStorageUsing(
+                        fn ($file) => 'products/' . $file->hashName()
+                    ),
                 Textarea::make('images')
                     ->default(null)
                     ->columnSpanFull(),

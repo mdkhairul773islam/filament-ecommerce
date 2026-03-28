@@ -20,7 +20,7 @@ class CategoryResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedFolder;
 
-    protected static ?string $recordTitleAttribute = 'Category';
+    protected static ?string $recordTitleAttribute = 'name';
     
     protected static ?string $navigationLabel = 'Categories';
 
