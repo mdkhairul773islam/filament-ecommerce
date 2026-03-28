@@ -1,0 +1,61 @@
+<?php
+
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Auth\ProfileController;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\PaymentController;
+use Illuminate\Support\Facades\Route;
+
+// Public routes
+Route::get('/', [HomeController::class, 'index'])->name('home');
+
+// Products
+Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+Route::get('/products/{slug}', [ProductController::class, 'show'])->name('products.show');
+
+// Guest routes
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [LoginController::class, 'create'])->name('login');
+    Route::post('/login', [LoginController::class, 'store']);
+    Route::get('/register', [RegisterController::class, 'create'])->name('register');
+    Route::post('/register', [RegisterController::class, 'store']);
+});
+
+// Cart (can be used by guests and authenticated users)
+Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+Route::post('/cart/add', [CartController::class, 'store'])->name('cart.store');
+Route::patch('/cart/{cartItem}', [CartController::class, 'update'])->name('cart.update');
+Route::delete('/cart/{cartItem}', [CartController::class, 'destroy'])->name('cart.destroy');
+
+// Checkout
+Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+
+// Payment
+Route::get('/payment/{order}', [PaymentController::class, 'show'])->name('payment.show');
+Route::post('/payment/{order}/confirm', [PaymentController::class, 'confirm'])->name('payment.confirm');
+Route::post('/payment/callback', [PaymentController::class, 'callback'])->name('payment.callback');
+
+// Authenticated routes
+Route::middleware('auth')->group(function () {
+    Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
+    
+    // Dashboard
+    Route::get('/dashboard', function () {
+        return inertia('Dashboard');
+    })->name('dashboard');
+    
+    // Profile
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
+    
+    // Orders
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{orderNumber}', [OrderController::class, 'show'])->name('orders.show');
+});
