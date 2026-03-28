@@ -12,7 +12,7 @@ export default function Checkout({ auth, cart, paymentMethods }) {
     });
 
     const total = cart?.items?.reduce((sum, item) => {
-        return sum + (item.price * item.quantity);
+        return sum + (parseFloat(item.price) * item.quantity);
     }, 0) || 0;
 
     const handleSubmit = (e) => {
@@ -234,7 +234,7 @@ export default function Checkout({ auth, cart, paymentMethods }) {
                                                 <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
                                             </div>
                                             <p className="text-sm font-medium text-gray-900">
-                                                ৳{(item.price * item.quantity).toFixed(2)}
+                                                ৳{(parseFloat(item.price) * item.quantity).toFixed(2)}
                                             </p>
                                         </li>
                                     ))}

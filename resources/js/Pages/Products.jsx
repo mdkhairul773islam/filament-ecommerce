@@ -85,7 +85,7 @@ export default function Products({ auth, products, categories, filters }) {
                                         )}
                                     </div>
                                     <p className="mt-1 text-lg font-medium text-gray-900">
-                                        ৳{(product.discount_price || product.price).toFixed(2)}
+                                        ৳{parseFloat(product.discount_price || product.price).toFixed(2)}
                                         {product.discount_price && (
                                             <span className="ml-2 text-sm text-gray-500 line-through">
                                                 ৳{parseFloat(product.price).toFixed(2)}

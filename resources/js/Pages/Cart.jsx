@@ -34,7 +34,7 @@ export default function Cart({ auth, cart }) {
     };
 
     const total = cart?.items?.reduce((sum, item) => {
-        return sum + (item.price * item.quantity);
+        return sum + (parseFloat(item.price) * item.quantity);
     }, 0) || 0;
 
     return (
@@ -73,7 +73,7 @@ export default function Cart({ auth, cart }) {
                                                                 {item.product?.name}
                                                             </Link>
                                                         </h3>
-                                                        <p className="ml-4">৳{(item.price * item.quantity).toFixed(2)}</p>
+                                                        <p className="ml-4">৳{(parseFloat(item.price) * item.quantity).toFixed(2)}</p>
                                                     </div>
                                                     <p className="mt-1 text-sm text-gray-500 capitalize">
                                                         {item.product?.type}
