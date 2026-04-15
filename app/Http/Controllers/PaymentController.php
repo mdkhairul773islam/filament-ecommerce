@@ -34,8 +34,15 @@ class PaymentController extends Controller
             abort(403);
         }
 
+        // Check if payment method is cash on delivery
+        $isCashOnDelivery = $order->payment->payment_method === 'cash';
+
         $request->validate([
-            'transaction_reference' => 'nullable|string|max:255',
+            'transaction_reference' => [
+                $isCashOnDelivery ? 'nullable' : 'required',
+                'string',
+                'max:255',
+            ],
         ]);
 
         DB::beginTransaction();
@@ -43,8 +50,9 @@ class PaymentController extends Controller
         try {
             $payment = $order->payment;
 
-            // Update payment status
+            // Update payment status and transaction ID
             $payment->update([
+                'transaction_id' => $request->transaction_reference ?: $payment->transaction_id,
                 'status' => 'completed',
                 'paid_at' => now(),
                 'payment_details' => [
@@ -64,6 +72,7 @@ class PaymentController extends Controller
                 ->with('success', 'Payment confirmed successfully. Your order is being processed.');
         } catch (\Exception $e) {
             DB::rollBack();
+
             return back()->with('error', 'Failed to confirm payment. Please try again.');
         }
     }
@@ -72,7 +81,7 @@ class PaymentController extends Controller
     {
         // This is for future payment gateway integration
         // Handle payment gateway callbacks here
-        
+
         return response()->json(['message' => 'Callback received']);
     }
 }

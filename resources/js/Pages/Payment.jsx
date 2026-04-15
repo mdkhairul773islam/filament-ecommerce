@@ -12,13 +12,15 @@ export default function Payment({ order, paymentMethod }) {
     };
 
     const getPaymentInstructions = () => {
+        const merchantNumber = paymentMethod?.config?.merchant_number || '01XXXXXXXXX';
+        
         switch (paymentMethod?.code) {
             case 'bkash':
                 return {
                     steps: [
                         'Open your bKash app',
                         'Select "Send Money"',
-                        'Enter merchant number: 01XXXXXXXXX',
+                        `Enter merchant number: ${merchantNumber}`,
                         `Enter amount: ৳${order.total}`,
                         'Enter your PIN and confirm',
                         'Note down the transaction ID',
@@ -32,7 +34,7 @@ export default function Payment({ order, paymentMethod }) {
                     steps: [
                         'Dial *322# from your mobile',
                         'Select "Payment"',
-                        'Enter merchant number: 01XXXXXXXXX',
+                        `Enter merchant number: ${merchantNumber}`,
                         `Enter amount: ৳${order.total}`,
                         'Enter your PIN and confirm',
                         'Note down the transaction ID',
@@ -46,7 +48,7 @@ export default function Payment({ order, paymentMethod }) {
                     steps: [
                         'Open your Nagad app',
                         'Select "Send Money"',
-                        'Enter merchant number: 01XXXXXXXXX',
+                        `Enter merchant number: ${merchantNumber}`,
                         `Enter amount: ৳${order.total}`,
                         'Enter your PIN and confirm',
                         'Note down the transaction ID',
