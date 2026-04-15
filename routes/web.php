@@ -9,10 +9,14 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\PageController;
 use Illuminate\Support\Facades\Route;
 
 // Public routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
+
+// Dynamic Pages
+Route::get('/p/{slug}', [PageController::class, 'show'])->name('page.show');
 
 // Products
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
