@@ -7,6 +7,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\RichEditor;
 use Filament\Schemas\Schema;
 
 class ProductForm
@@ -28,10 +29,48 @@ class ProductForm
                     ->required(),
                 Textarea::make('description')
                     ->default(null)
-                    ->columnSpanFull(),
-                Textarea::make('content')
+                    ->columnSpanFull()
+                    ->label('Summary'),
+                RichEditor::make('content')
                     ->default(null)
-                    ->columnSpanFull(),
+                    ->columnSpanFull()
+                    ->label('Additional Details'),
+                RichEditor::make('specification')
+                    ->default(null)
+                    ->columnSpanFull()
+                    ->label('Specification'),
+                RichEditor::make('author_details')
+                    ->default(null)
+                    ->columnSpanFull()
+                    ->label('Author Details'),
+
+                \Filament\Schemas\Components\Section::make('Look Inside')
+                    ->schema([
+                        Select::make('look_inside_type')
+                            ->label('Content Type')
+                            ->options([
+                                'pdf' => 'PDF Document',
+                                'text' => 'Rich Text',
+                            ])
+                            ->reactive()
+                            ->default(null),
+                        
+                        FileUpload::make('look_inside_pdf')
+                            ->label('PDF File')
+                            ->disk('public')
+                            ->directory('look_inside/pdfs')
+                            ->acceptedFileTypes(['application/pdf'])
+                            ->visible(fn ($get) => $get('look_inside_type') === 'pdf'),
+                            
+                        RichEditor::make('look_inside_text')
+                            ->label('Read a Little (Text)')
+                            ->visible(fn ($get) => $get('look_inside_type') === 'text')
+                            ->columnSpanFull(),
+                    ])
+                    ->collapsible()
+                    ->collapsed(true)
+                    ->columns(1),
+
                 TextInput::make('price')
                     ->required()
                     ->numeric()

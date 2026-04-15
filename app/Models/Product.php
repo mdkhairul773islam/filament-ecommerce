@@ -27,12 +27,19 @@ class Product extends Model
         'is_featured',
         'is_active',
         'show_discount_badge',
+        'specification',
+        'author_details',
+        'look_inside_type',
+        'look_inside_pdf',
+        'look_inside_images',
+        'look_inside_text',
     ];
 
     protected $casts = [
         'price' => 'decimal:2',
         'discount_price' => 'decimal:2',
         'images' => 'array',
+        'look_inside_images' => 'array',
         'is_featured' => 'boolean',
         'is_active' => 'boolean',
         'show_discount_badge' => 'boolean',
