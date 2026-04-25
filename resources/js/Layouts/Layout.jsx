@@ -59,30 +59,30 @@ export default function Layout({ children }) {
     return (
         <div className="min-h-screen bg-gray-50">
             <nav className="bg-white shadow-sm">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between h-16">
+                <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex justify-between h-16 sm:h-20">
                         <div className="flex">
-                            <Link href="/" className="flex items-center">
+                            <Link href="/" className="flex items-center sm:absolute sm:top-1/2 sm:-translate-y-1/2 sm:left-6 lg:left-8 sm:z-10">
                                 {settings?.site_logo ? (
                                     <img 
                                         src={settings.site_logo} 
                                         alt={settings.site_name || 'Logo'} 
-                                        className="h-10 w-auto"
+                                        className="h-10 w-auto sm:h-20 sm:object-contain drop-shadow-sm"
                                     />
                                 ) : (
                                     <div className="flex flex-col">
-                                        <span className="text-xl font-bold text-indigo-600">
+                                        <span className="text-xl font-bold text-indigo-600 sm:text-2xl">
                                             {settings?.site_name || 'MononKendra'}
                                         </span>
                                         {settings?.site_name_bangla && (
-                                            <span className="text-xs text-gray-600">
+                                            <span className="text-xs text-gray-600 sm:text-sm">
                                                 {settings.site_name_bangla}
                                             </span>
                                         )}
                                     </div>
                                 )}
                             </Link>
-                            <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
+                            <div className="hidden sm:flex sm:space-x-8 sm:ml-32 lg:ml-40">
                                 <Link href="/" className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900">
                                     Home
                                 </Link>
