@@ -25,10 +25,10 @@ class ProductsTable
                 TextColumn::make('type')
                     ->badge(),
                 TextColumn::make('price')
-                    ->money()
+                    ->money('BDT')
                     ->sortable(),
                 TextColumn::make('discount_price')
-                    ->money()
+                    ->money('BDT')
                     ->sortable(),
                 ImageColumn::make('image')
                     ->disk('public'),
@@ -43,6 +43,11 @@ class ProductsTable
                     ->boolean(),
                 IconColumn::make('is_active')
                     ->boolean(),
+                IconColumn::make('digital_file')
+                    ->label('Digital File')
+                    ->icon(fn ($state) => $state ? 'heroicon-o-document-text' : 'heroicon-o-minus')
+                    ->color(fn ($state) => $state ? 'success' : 'gray')
+                    ->tooltip(fn ($record) => $record->digital_file ? 'PDF uploaded' : 'No digital file'),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

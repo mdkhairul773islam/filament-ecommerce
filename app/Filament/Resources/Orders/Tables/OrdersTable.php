@@ -2,14 +2,17 @@
 
 namespace App\Filament\Resources\Orders\Tables;
 
+use App\Mail\OrderDigitalProductMail;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Mail;
 
 class OrdersTable
 {
@@ -86,6 +89,15 @@ class OrdersTable
                     ->sortable()
                     ->label('Created')
                     ->toggleable(isToggledHiddenByDefault: true),
+
+                IconColumn::make('digital_sent_at')
+                    ->label('File Sent')
+                    ->icon(fn ($state) => $state ? 'heroicon-o-check-circle' : 'heroicon-o-x-circle')
+                    ->color(fn ($state) => $state ? 'success' : 'gray')
+                    ->tooltip(fn ($record) => $record->digital_sent_at
+                        ? 'Sent: '.$record->digital_sent_at->format('d M Y, h:i A')
+                        : 'Not sent yet'
+                    ),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
@@ -107,6 +119,27 @@ class OrdersTable
                     ]),
             ])
             ->recordActions([
+                Action::make('send_email')
+                    ->label(fn ($record) => $record->digital_sent_at ? 'Resend Email' : 'Send Email')
+                    ->icon('heroicon-o-envelope')
+                    ->color(fn ($record) => $record->digital_sent_at ? 'gray' : 'primary')
+                    ->requiresConfirmation()
+                    ->modalHeading(fn ($record) => 'Send Digital File to '.$record->customer_name)
+                    ->modalDescription(fn ($record) => 'This will send the PDF file(s) to '.$record->customer_email.'.')
+                    ->modalSubmitActionLabel('Send Now')
+                    ->action(function ($record): void {
+                        $record->load('items.product');
+
+                        Mail::to($record->customer_email)
+                            ->send(new OrderDigitalProductMail($record));
+
+                        $record->update(['digital_sent_at' => now()]);
+                    })
+                    ->successNotificationTitle('Email sent successfully!')
+                    ->visible(fn ($record): bool => $record->payment?->status === 'completed'
+                        && $record->items->some(
+                            fn ($item) => $item->product && $item->product->digital_file
+                        )),
                 Action::make('whatsapp')
                     ->label('WhatsApp')
                     ->icon('heroicon-o-chat-bubble-left-ellipsis')

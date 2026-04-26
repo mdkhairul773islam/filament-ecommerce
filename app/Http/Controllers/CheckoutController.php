@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Mail\OrderDigitalProductMail;
 use App\Models\Cart;
 use App\Models\Order;
 use App\Models\OrderItem;
@@ -11,7 +10,6 @@ use App\Models\PaymentMethod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
 use Inertia\Inertia;
 
 class CheckoutController extends Controller
@@ -110,19 +108,6 @@ class CheckoutController extends Controller
             $cart->delete();
 
             DB::commit();
-
-            // Load order items with products for notifications
-            $order->load('items.product');
-
-            // Send email with digital product PDFs (if any item has a digital file)
-            $hasDigitalFiles = $order->items->some(
-                fn ($item) => $item->product && $item->product->digital_file
-            );
-
-            if ($hasDigitalFiles) {
-                Mail::to($order->customer_email)
-                    ->send(new OrderDigitalProductMail($order));
-            }
 
             return redirect()->route('payment.show', $order->id)
                 ->with('success', 'Order placed successfully. Please complete your payment.');

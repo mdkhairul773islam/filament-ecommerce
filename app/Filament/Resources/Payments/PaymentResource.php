@@ -7,6 +7,7 @@ use App\Models\Payment;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
@@ -39,13 +40,13 @@ class PaymentResource extends Resource
                     ->disabled()
                     ->label('Transaction ID')
                     ->columnSpanFull(),
-                
+
                 TextInput::make('order_number_display')
                     ->disabled()
                     ->label('Order Number')
                     ->dehydrated(false)
                     ->formatStateUsing(fn ($record) => $record?->order?->order_number ?? 'N/A'),
-                
+
                 TextInput::make('payment_method')
                     ->disabled()
                     ->label('Payment Method')
@@ -56,12 +57,12 @@ class PaymentResource extends Resource
                         'cash' => 'Cash on Delivery',
                         default => $state ? ucfirst($state) : 'N/A',
                     }),
-                
+
                 TextInput::make('amount')
                     ->disabled()
                     ->prefix('৳')
                     ->label('Amount'),
-                
+
                 Select::make('status')
                     ->options([
                         'pending' => 'Pending',
@@ -71,29 +72,29 @@ class PaymentResource extends Resource
                     ])
                     ->required()
                     ->label('Payment Status'),
-                
+
                 DateTimePicker::make('paid_at')
                     ->label('Paid At'),
-                
+
                 // Customer Information
                 TextInput::make('customer_name_display')
                     ->disabled()
                     ->label('Customer Name')
                     ->dehydrated(false)
                     ->formatStateUsing(fn ($record) => $record?->order?->customer_name ?? 'N/A'),
-                
+
                 TextInput::make('customer_email_display')
                     ->disabled()
                     ->label('Customer Email')
                     ->dehydrated(false)
                     ->formatStateUsing(fn ($record) => $record?->order?->customer_email ?? 'N/A'),
-                
+
                 TextInput::make('customer_phone_display')
                     ->disabled()
                     ->label('Customer Phone')
                     ->dehydrated(false)
                     ->formatStateUsing(fn ($record) => $record?->order?->customer_phone ?? 'N/A'),
-                
+
                 Textarea::make('customer_address_display')
                     ->disabled()
                     ->label('Customer Address')
@@ -101,20 +102,20 @@ class PaymentResource extends Resource
                     ->dehydrated(false)
                     ->columnSpanFull()
                     ->formatStateUsing(fn ($record) => $record?->order?->customer_address ?? 'N/A'),
-                
+
                 // Transaction Details
                 TextInput::make('transaction_reference_display')
                     ->disabled()
                     ->label('Transaction Reference')
                     ->dehydrated(false)
                     ->formatStateUsing(fn ($record) => $record?->payment_details['transaction_reference'] ?? 'N/A'),
-                
+
                 TextInput::make('confirmed_at_display')
                     ->disabled()
                     ->label('Confirmed At')
                     ->dehydrated(false)
                     ->formatStateUsing(fn ($record) => $record?->payment_details['confirmed_at'] ?? 'N/A'),
-                
+
                 Textarea::make('payment_details_display')
                     ->disabled()
                     ->label('Payment Details')
@@ -122,28 +123,28 @@ class PaymentResource extends Resource
                     ->dehydrated(false)
                     ->columnSpanFull()
                     ->formatStateUsing(function ($record) {
-                        if (!$record || !$record->payment_details) {
+                        if (! $record || ! $record->payment_details) {
                             return 'No payment details available';
                         }
-                        
+
                         $details = $record->payment_details;
                         $text = '';
-                        
+
                         if (isset($details['transaction_reference'])) {
-                            $text .= "Transaction Reference: " . $details['transaction_reference'] . "\n";
+                            $text .= 'Transaction Reference: '.$details['transaction_reference']."\n";
                         }
-                        
+
                         if (isset($details['confirmed_at'])) {
-                            $text .= "Confirmed At: " . $details['confirmed_at'] . "\n";
+                            $text .= 'Confirmed At: '.$details['confirmed_at']."\n";
                         }
-                        
+
                         // Add any other details
                         foreach ($details as $key => $value) {
-                            if (!in_array($key, ['transaction_reference', 'confirmed_at'])) {
-                                $text .= ucfirst(str_replace('_', ' ', $key)) . ": " . (is_array($value) ? json_encode($value) : $value) . "\n";
+                            if (! in_array($key, ['transaction_reference', 'confirmed_at'])) {
+                                $text .= ucfirst(str_replace('_', ' ', $key)).': '.(is_array($value) ? json_encode($value) : $value)."\n";
                             }
                         }
-                        
+
                         return $text ?: 'No additional details';
                     }),
             ]);
@@ -159,17 +160,17 @@ class PaymentResource extends Resource
                     ->sortable()
                     ->label('Transaction ID')
                     ->copyable(),
-                
+
                 TextColumn::make('order.order_number')
                     ->searchable()
                     ->sortable()
                     ->label('Order Number')
                     ->url(fn (Payment $record) => $record->order ? route('filament.admin.resources.orders.edit', $record->order) : null),
-                
+
                 TextColumn::make('order.customer_name')
                     ->searchable()
                     ->label('Customer'),
-                
+
                 TextColumn::make('payment_method')
                     ->badge()
                     ->label('Method')
@@ -180,12 +181,12 @@ class PaymentResource extends Resource
                         'cash' => 'Cash on Delivery',
                         default => ucfirst($state),
                     }),
-                
+
                 TextColumn::make('amount')
                     ->money('BDT')
                     ->sortable()
                     ->label('Amount'),
-                
+
                 TextColumn::make('status')
                     ->badge()
                     ->sortable()
@@ -197,13 +198,13 @@ class PaymentResource extends Resource
                         'refunded' => 'info',
                         default => 'gray',
                     }),
-                
+
                 TextColumn::make('paid_at')
                     ->dateTime()
                     ->sortable()
                     ->label('Paid At')
                     ->toggleable(),
-                
+
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -229,6 +230,7 @@ class PaymentResource extends Resource
             ])
             ->recordActions([
                 ViewAction::make(),
+                EditAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
