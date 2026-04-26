@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\OrderDigitalProductMail;
 use App\Models\Cart;
 use App\Models\Order;
 use App\Models\OrderItem;
@@ -10,6 +11,7 @@ use App\Models\PaymentMethod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Inertia\Inertia;
 
 class CheckoutController extends Controller
@@ -18,7 +20,7 @@ class CheckoutController extends Controller
     {
         $cart = $this->getCart();
 
-        if (!$cart || $cart->items->isEmpty()) {
+        if (! $cart || $cart->items->isEmpty()) {
             return redirect()->route('cart.index')->with('error', 'Your cart is empty');
         }
 
@@ -43,7 +45,7 @@ class CheckoutController extends Controller
 
         $cart = $this->getCart();
 
-        if (!$cart || $cart->items->isEmpty()) {
+        if (! $cart || $cart->items->isEmpty()) {
             return back()->with('error', 'Your cart is empty');
         }
 
@@ -65,7 +67,7 @@ class CheckoutController extends Controller
             // Create order
             $order = Order::create([
                 'user_id' => Auth::guard('web')->id(),
-                'order_number' => 'ORD-' . strtoupper(uniqid()),
+                'order_number' => 'ORD-'.strtoupper(uniqid()),
                 'status' => 'pending',
                 'subtotal' => $subtotal,
                 'tax' => 0,
@@ -97,7 +99,7 @@ class CheckoutController extends Controller
             // Create payment record
             Payment::create([
                 'order_id' => $order->id,
-                'transaction_id' => 'TXN-' . strtoupper(uniqid()),
+                'transaction_id' => 'TXN-'.strtoupper(uniqid()),
                 'payment_method' => $request->payment_method,
                 'amount' => $subtotal,
                 'status' => 'pending',
@@ -109,10 +111,24 @@ class CheckoutController extends Controller
 
             DB::commit();
 
+            // Load order items with products for notifications
+            $order->load('items.product');
+
+            // Send email with digital product PDFs (if any item has a digital file)
+            $hasDigitalFiles = $order->items->some(
+                fn ($item) => $item->product && $item->product->digital_file
+            );
+
+            if ($hasDigitalFiles) {
+                Mail::to($order->customer_email)
+                    ->send(new OrderDigitalProductMail($order));
+            }
+
             return redirect()->route('payment.show', $order->id)
                 ->with('success', 'Order placed successfully. Please complete your payment.');
         } catch (\Exception $e) {
             DB::rollBack();
+
             return back()->with('error', 'Failed to place order. Please try again.');
         }
     }
@@ -124,6 +140,7 @@ class CheckoutController extends Controller
         }
 
         $sessionId = session()->getId();
+
         return Cart::where('session_id', $sessionId)->first();
     }
 }

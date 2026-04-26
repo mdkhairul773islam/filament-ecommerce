@@ -3,11 +3,12 @@
 namespace App\Filament\Resources\Products\Schemas;
 
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
 class ProductForm
@@ -44,7 +45,7 @@ class ProductForm
                     ->columnSpanFull()
                     ->label('Author Details'),
 
-                \Filament\Schemas\Components\Section::make('Look Inside')
+                Section::make('Look Inside')
                     ->schema([
                         Select::make('look_inside_type')
                             ->label('Content Type')
@@ -54,14 +55,14 @@ class ProductForm
                             ])
                             ->reactive()
                             ->default(null),
-                        
+
                         FileUpload::make('look_inside_pdf')
                             ->label('PDF File')
                             ->disk('public')
                             ->directory('look_inside/pdfs')
                             ->acceptedFileTypes(['application/pdf'])
                             ->visible(fn ($get) => $get('look_inside_type') === 'pdf'),
-                            
+
                         RichEditor::make('look_inside_text')
                             ->label('Read a Little (Text)')
                             ->visible(fn ($get) => $get('look_inside_type') === 'text')
@@ -88,12 +89,21 @@ class ProductForm
                     ->default('percentage')
                     ->required()
                     ->helperText('Select how discount should be applied'),
+                FileUpload::make('digital_file')
+                    ->label('Digital File (PDF)')
+                    ->disk('public')
+                    ->directory('products/digital')
+                    ->acceptedFileTypes(['application/pdf'])
+                    ->downloadable()
+                    ->openable()
+                    ->helperText('Upload the PDF that will be delivered to customers after ordering')
+                    ->columnSpanFull(),
                 FileUpload::make('image')
                     ->image()
                     ->disk('public')
                     ->visibility('public')
                     ->getUploadedFileNameForStorageUsing(
-                        fn ($file) => 'products/' . $file->hashName()
+                        fn ($file) => 'products/'.$file->hashName()
                     ),
                 Textarea::make('images')
                     ->default(null)

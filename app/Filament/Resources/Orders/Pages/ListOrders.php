@@ -20,6 +20,6 @@ class ListOrders extends ListRecords
 
     protected function getTableQuery(): Builder
     {
-        return parent::getTableQuery()->with('payment');
+        return parent::getTableQuery()->with('payment', 'items');
     }
 }

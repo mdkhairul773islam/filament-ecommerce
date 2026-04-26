@@ -33,6 +33,7 @@ class Product extends Model
         'look_inside_pdf',
         'look_inside_images',
         'look_inside_text',
+        'digital_file',
     ];
 
     protected $casts = [
