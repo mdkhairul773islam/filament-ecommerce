@@ -48,7 +48,7 @@ class Product extends Model
     protected static function boot()
     {
         parent::boot();
-        
+
         static::creating(function ($product) {
             if (empty($product->slug)) {
                 $product->slug = Str::slug($product->name);
@@ -71,8 +71,19 @@ class Product extends Model
         return $this->hasMany(CartItem::class);
     }
 
-    public function getFinalPriceAttribute()
+    public function getFinalPriceAttribute(): string
     {
-        return $this->discount_price ?? $this->price;
+        if (! $this->discount_price) {
+            return $this->price;
+        }
+
+        if ($this->discount_type === 'flat') {
+            return bcsub((string) $this->price, (string) $this->discount_price, 2);
+        }
+
+        // percentage
+        $discountAmount = bcmul((string) $this->price, bcdiv((string) $this->discount_price, '100', 4), 2);
+
+        return bcsub((string) $this->price, $discountAmount, 2);
     }
 }

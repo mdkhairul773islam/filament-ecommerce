@@ -41,13 +41,15 @@ class CartController extends Controller
         if ($cartItem) {
             $cartItem->quantity += $quantity;
             $cartItem->save();
+
             return redirect()->route('cart.index')->with('success', '✅ Product quantity updated in cart!');
         } else {
             $cart->items()->create([
                 'product_id' => $product->id,
                 'quantity' => $quantity,
-                'price' => $product->discount_price ?? $product->price,
+                'price' => $product->final_price,
             ]);
+
             return redirect()->route('cart.index')->with('success', '🛒 Product added to cart successfully!');
         }
     }
@@ -85,6 +87,7 @@ class CartController extends Controller
         }
 
         $sessionId = session()->getId();
+
         return Cart::where('session_id', $sessionId)->first();
     }
 
@@ -95,6 +98,7 @@ class CartController extends Controller
         }
 
         $sessionId = session()->getId();
+
         return Cart::firstOrCreate(['session_id' => $sessionId]);
     }
 }

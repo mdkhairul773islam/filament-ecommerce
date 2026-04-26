@@ -1,7 +1,7 @@
 import { Head, Link, useForm } from '@inertiajs/react';
 import Layout from '../Layouts/Layout';
 
-export default function Payment({ order, paymentMethod }) {
+export default function Payment({ auth, order, paymentMethod }) {
     const { data, setData, post, processing } = useForm({
         transaction_reference: '',
     });
@@ -206,15 +206,17 @@ export default function Payment({ order, paymentMethod }) {
                             )}
 
                             <div className="flex items-center justify-between space-x-4 pt-4">
-                                <Link
-                                    href={`/orders/${order.order_number}`}
-                                    className="inline-flex items-center px-6 py-3 border-2 border-gray-300 shadow-sm text-sm font-semibold rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 transition-all duration-200"
-                                >
-                                    <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                    Pay Later
-                                </Link>
+                                {auth?.user && (
+                                    <Link
+                                        href={`/orders/${order.order_number}`}
+                                        className="inline-flex items-center px-6 py-3 border-2 border-gray-300 shadow-sm text-sm font-semibold rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 transition-all duration-200"
+                                    >
+                                        <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        Pay Later
+                                    </Link>
+                                )}
                                 <button
                                     type="submit"
                                     disabled={processing}

@@ -1,15 +1,15 @@
 <?php
 
 use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ProfileController;
+use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\OrderController;
-use App\Http\Controllers\ProductController;
-use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 
 // Public routes
@@ -45,21 +45,23 @@ Route::get('/payment/{order}', [PaymentController::class, 'show'])->name('paymen
 Route::post('/payment/{order}/confirm', [PaymentController::class, 'confirm'])->name('payment.confirm');
 Route::post('/payment/callback', [PaymentController::class, 'callback'])->name('payment.callback');
 
+// Order detail (accessible by guests for their own guest orders)
+Route::get('/orders/{orderNumber}', [OrderController::class, 'show'])->name('orders.show');
+
 // Authenticated routes
 Route::middleware('auth:web')->group(function () {
     Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
-    
+
     // Dashboard
     Route::get('/dashboard', function () {
         return inertia('Dashboard');
     })->name('dashboard');
-    
+
     // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
-    
-    // Orders
+
+    // Orders list (auth only)
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
-    Route::get('/orders/{orderNumber}', [OrderController::class, 'show'])->name('orders.show');
 });

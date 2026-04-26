@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
@@ -29,8 +28,13 @@ class OrderController extends Controller
             ->where('order_number', $orderNumber)
             ->firstOrFail();
 
-        // Allow viewing if user owns the order or if not authenticated (for guest orders)
-        if (Auth::guard('web')->check() && $order->user_id !== Auth::guard('web')->id()) {
+        // If authenticated, only allow viewing own orders
+        if (Auth::guard('web')->check() && $order->user_id !== null && $order->user_id !== Auth::guard('web')->id()) {
+            abort(403);
+        }
+
+        // If order belongs to a user but visitor is not authenticated, deny access
+        if (! Auth::guard('web')->check() && $order->user_id !== null) {
             abort(403);
         }
 
