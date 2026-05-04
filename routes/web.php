@@ -65,3 +65,13 @@ Route::middleware('auth:web')->group(function () {
     // Orders list (auth only)
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
 });
+
+Route::get('/linkstorage', function () {
+    Artisan::call('storage:link');
+    return "Storage link created successfully!";
+});
+
+Route::get('/optimize-clear', function () {
+    Artisan::call('optimize:clear');
+    return "Optimize clear successfully!";
+});

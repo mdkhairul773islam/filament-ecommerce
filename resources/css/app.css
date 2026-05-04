@@ -8,6 +8,44 @@
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-size-base: 1rem;
+}
+
+html {
+    font-size: 16px;
+}
+
+body {
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+/* Tagline Shimmer Animation */
+@keyframes shimmer-text {
+    0% { background-position: 0% center; }
+    100% { background-position: 200% center; }
+}
+@keyframes glow-pulse {
+    0%, 100% { opacity: 0.25; transform: scale(1); }
+    50% { opacity: 0.55; transform: scale(1.04); }
+}
+@keyframes float-badge {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-3px); }
+}
+.tagline-shimmer {
+    background: linear-gradient(90deg, #4f46e5 0%, #7c3aed 30%, #a855f7 50%, #7c3aed 70%, #4f46e5 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer-text 4s linear infinite;
+}
+.tagline-glow {
+    animation: glow-pulse 2.5s ease-in-out infinite;
+}
+.tagline-float {
+    animation: float-badge 3s ease-in-out infinite;
 }
 
 /* Rokomari Style Editor Content */
