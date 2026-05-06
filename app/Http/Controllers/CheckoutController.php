@@ -37,7 +37,7 @@ class CheckoutController extends Controller
             'customer_email' => 'required|email|max:255',
             'customer_phone' => 'required|string|max:20',
             'customer_address' => 'nullable|string',
-            'payment_method' => 'required|in:bkash,rocket,nagad,cash',
+            'payment_method' => ['required', 'string', 'in:'.implode(',', PaymentMethod::active()->pluck('code')->toArray())],
             'notes' => 'nullable|string',
         ]);
 

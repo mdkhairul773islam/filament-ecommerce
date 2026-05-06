@@ -49,6 +49,13 @@ Route::get('/payment/{order}', [PaymentController::class, 'show'])->name('paymen
 Route::post('/payment/{order}/confirm', [PaymentController::class, 'confirm'])->name('payment.confirm');
 Route::post('/payment/callback', [PaymentController::class, 'callback'])->name('payment.callback');
 
+// SSLCommerz
+Route::get('/payment/{order}/sslcommerz/init', [PaymentController::class, 'sslcommerzInit'])->name('payment.sslcommerz.init');
+Route::post('/payment/{order}/sslcommerz/success', [PaymentController::class, 'sslcommerzSuccess'])->name('payment.sslcommerz.success');
+Route::post('/payment/{order}/sslcommerz/fail', [PaymentController::class, 'sslcommerzFail'])->name('payment.sslcommerz.fail');
+Route::post('/payment/{order}/sslcommerz/cancel', [PaymentController::class, 'sslcommerzCancel'])->name('payment.sslcommerz.cancel');
+Route::post('/payment/sslcommerz/ipn', [PaymentController::class, 'sslcommerzIpn'])->name('payment.sslcommerz.ipn');
+
 // Order detail (accessible by guests for their own guest orders)
 Route::get('/orders/{orderNumber}', [OrderController::class, 'show'])->name('orders.show');
 
@@ -72,10 +79,12 @@ Route::middleware('auth:web')->group(function () {
 
 Route::get('/linkstorage', function () {
     Artisan::call('storage:link');
-    return "Storage link created successfully!";
+
+    return 'Storage link created successfully!';
 });
 
 Route::get('/optimize-clear', function () {
     Artisan::call('optimize:clear');
-    return "Optimize clear successfully!";
+
+    return 'Optimize clear successfully!';
 });

@@ -15,7 +15,10 @@ class BuyNowController extends Controller
 {
     public function store(Request $request)
     {
-        $validCodes = PaymentMethod::active()->pluck('code')->toArray();
+        $validCodes = array_merge(
+            PaymentMethod::active()->pluck('code')->toArray(),
+            ['sslcommerz']
+        );
 
         $request->validate([
             'product_id' => 'required|exists:products,id',
@@ -78,6 +81,12 @@ class BuyNowController extends Controller
             ]);
 
             DB::commit();
+
+            // SSLCommerz → redirect directly to SSLCommerz init
+            if ($request->payment_method === 'sslcommerz') {
+                return redirect()->route('payment.sslcommerz.init', $order->id)
+                    ->with('success', 'অর্ডার সফল হয়েছে! পেমেন্ট সম্পন্ন করুন।');
+            }
 
             return redirect()->route('payment.show', $order->id)
                 ->with('success', 'অর্ডার সফল হয়েছে! পেমেন্ট সম্পন্ন করুন।');

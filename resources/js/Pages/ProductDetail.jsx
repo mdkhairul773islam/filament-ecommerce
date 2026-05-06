@@ -17,7 +17,7 @@ export default function ProductDetail({ auth, product, paymentMethods }) {
         customer_name: auth?.user?.name || '',
         customer_email: auth?.user?.email || '',
         customer_phone: '',
-        payment_method: paymentMethods?.[0]?.code || '',
+        payment_method: 'bkash',
     });
 
     const finalPrice = product.discount_price
@@ -391,23 +391,35 @@ export default function ProductDetail({ auth, product, paymentMethods }) {
                                     <div>
                                         <label className="block text-sm font-semibold text-gray-700 mb-2">পেমেন্ট মেথড সিলেক্ট করুন</label>
                                         <div className="grid grid-cols-2 gap-3">
-                                            {paymentMethods.map((method) => (
+                                            {/* bKash */}
+                                            {paymentMethods.filter(m => m.code === 'bkash').map((method) => (
                                                 <button
                                                     key={method.id}
                                                     type="button"
                                                     onClick={() => setBuyData('payment_method', method.code)}
-                                                    className={`flex flex-col items-center justify-center py-3 px-2 rounded-xl border-2 font-bold text-sm transition-all ${
+                                                    className={`flex flex-col items-center justify-center py-4 px-2 rounded-xl border-2 font-bold text-sm transition-all ${
                                                         buyData.payment_method === method.code
-                                                            ? 'border-indigo-500 bg-indigo-50 text-indigo-700'
-                                                            : 'border-gray-200 bg-white text-gray-600 hover:border-indigo-300'
+                                                            ? 'border-pink-500 bg-pink-50'
+                                                            : 'border-gray-200 bg-white hover:border-pink-300'
                                                     }`}
                                                 >
-                                                    <span className="font-extrabold text-base">{method.name}</span>
-                                                    {method.description && (
-                                                        <span className="text-xs font-normal text-gray-400 mt-0.5 text-center leading-tight">{method.description}</span>
-                                                    )}
+                                                    <span className="font-extrabold text-lg text-pink-600">bKash</span>
+                                                    <span className="text-xs font-normal text-gray-400 mt-0.5">পেমেন্ট</span>
                                                 </button>
                                             ))}
+                                            {/* SSLCommerz */}
+                                            <button
+                                                type="button"
+                                                onClick={() => setBuyData('payment_method', 'sslcommerz')}
+                                                className={`flex flex-col items-center justify-center py-4 px-2 rounded-xl border-2 font-bold text-sm transition-all ${
+                                                    buyData.payment_method === 'sslcommerz'
+                                                        ? 'border-indigo-500 bg-indigo-50'
+                                                        : 'border-gray-200 bg-white hover:border-indigo-300'
+                                                }`}
+                                            >
+                                                <span className="font-extrabold text-base text-gray-800">SSLCommerz</span>
+                                                <span className="text-xs font-normal text-gray-400 mt-0.5">Cards / Nagad / Rocket</span>
+                                            </button>
                                         </div>
                                         {buyErrors.payment_method && <p className="text-red-500 text-xs mt-1">{buyErrors.payment_method}</p>}
                                     </div>
