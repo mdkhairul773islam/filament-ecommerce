@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\ProfileController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\BuyNowController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\HomeController;
@@ -39,6 +40,9 @@ Route::delete('/cart/{cartItem}', [CartController::class, 'destroy'])->name('car
 // Checkout
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
 Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+
+// Buy Now (direct purchase from product page)
+Route::post('/buy-now', [BuyNowController::class, 'store'])->name('buy-now');
 
 // Payment
 Route::get('/payment/{order}', [PaymentController::class, 'show'])->name('payment.show');
