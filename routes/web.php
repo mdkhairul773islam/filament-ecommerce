@@ -51,9 +51,9 @@ Route::post('/payment/callback', [PaymentController::class, 'callback'])->name('
 
 // SSLCommerz
 Route::get('/payment/{order}/sslcommerz/init', [PaymentController::class, 'sslcommerzInit'])->name('payment.sslcommerz.init');
-Route::post('/payment/{order}/sslcommerz/success', [PaymentController::class, 'sslcommerzSuccess'])->name('payment.sslcommerz.success');
-Route::post('/payment/{order}/sslcommerz/fail', [PaymentController::class, 'sslcommerzFail'])->name('payment.sslcommerz.fail');
-Route::post('/payment/{order}/sslcommerz/cancel', [PaymentController::class, 'sslcommerzCancel'])->name('payment.sslcommerz.cancel');
+Route::match(['get', 'post'], '/payment/{order}/sslcommerz/success', [PaymentController::class, 'sslcommerzSuccess'])->name('payment.sslcommerz.success');
+Route::match(['get', 'post'], '/payment/{order}/sslcommerz/fail', [PaymentController::class, 'sslcommerzFail'])->name('payment.sslcommerz.fail');
+Route::match(['get', 'post'], '/payment/{order}/sslcommerz/cancel', [PaymentController::class, 'sslcommerzCancel'])->name('payment.sslcommerz.cancel');
 Route::post('/payment/sslcommerz/ipn', [PaymentController::class, 'sslcommerzIpn'])->name('payment.sslcommerz.ipn');
 
 // Order detail (accessible by guests for their own guest orders)

@@ -79,6 +79,17 @@ class PaymentController extends Controller
 
         $order->load('payment', 'items.product');
 
+        // ── Mock mode: skip real API call ──────────────────────────────
+        if (! config('services.sslcommerz.is_live')) {
+            return Inertia::render('SSLCommerzMock', [
+                'order' => $order,
+                'successUrl' => route('payment.sslcommerz.success', $order->id),
+                'failUrl' => route('payment.sslcommerz.fail', $order->id),
+                'cancelUrl' => route('payment.sslcommerz.cancel', $order->id),
+            ]);
+        }
+        // ──────────────────────────────────────────────────────────────
+
         $params = [
             'total_amount' => $order->total,
             'currency' => 'BDT',
@@ -113,6 +124,26 @@ class PaymentController extends Controller
 
     public function sslcommerzSuccess(Request $request, Order $order, SSLCommerzService $sslCommerz)
     {
+        // Mock mode: accept without real validation
+        if (! config('services.sslcommerz.is_live')) {
+            DB::beginTransaction();
+            try {
+                $order->payment->update([
+                    'transaction_id' => 'MOCK-'.strtoupper(uniqid()),
+                    'status' => 'completed',
+                    'paid_at' => now(),
+                    'payment_details' => ['mock' => true, 'confirmed_at' => now()->toDateTimeString()],
+                ]);
+                $order->update(['status' => 'processing']);
+                DB::commit();
+            } catch (\Exception $e) {
+                DB::rollBack();
+            }
+
+            return redirect()->route('orders.show', $order->order_number)
+                ->with('success', 'Payment successful! Your order is being processed.');
+        }
+
         if (! $request->has('val_id')) {
             return redirect()->route('payment.show', $order->id)
                 ->with('error', 'Payment validation failed.');
