@@ -102,10 +102,10 @@ export default function Layout({ children }) {
                             <div className="tagline-float relative group cursor-default select-none">
                                 <div className="tagline-glow absolute -inset-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-violet-500 rounded-2xl blur-md"></div>
                                 <div className="relative flex flex-col items-center px-5 py-2 bg-white rounded-2xl border border-indigo-100 shadow-md">
-                                    <span className="tagline-shimmer text-sm font-extrabold tracking-wide">
+                                    <span className="tagline-shimmer text-2xl font-extrabold tracking-wide">
                                         মনন কেন্দ্র
                                     </span>
-                                    <span className="text-[10px] font-semibold text-purple-500 tracking-widest mt-0.5">
+                                    <span className="text-xs font-semibold text-purple-500 tracking-widest mt-0.5">
                                         জ্ঞান ও প্রজ্ঞার আলো
                                     </span>
                                 </div>
@@ -211,8 +211,9 @@ export default function Layout({ children }) {
 
             {/* Mobile tagline banner */}
             <div className="sm:hidden w-full bg-gradient-to-r from-indigo-600 via-purple-600 to-violet-600 py-2 shadow-sm">
-                <p className="text-center text-white text-xs font-bold tracking-wide">
-                    ✨ মনন কেন্দ্র &nbsp;—&nbsp; জ্ঞান ও প্রজ্ঞার আলো ✨
+                <p className="text-center font-bold tracking-wide flex flex-col items-center gap-0.5">
+                    <span className="text-white text-lg font-extrabold">✨ মনন কেন্দ্র ✨</span>
+                    <span className="text-yellow-200 text-xs font-semibold tracking-widest">জ্ঞান ও প্রজ্ঞার আলো</span>
                 </p>
             </div>
 
@@ -299,10 +300,10 @@ export default function Layout({ children }) {
                                     />
                                 ) : (
                                     <div>
-                                        <h3 className="text-white text-xl font-bold">
+                                        <h3 className="text-white text-3xl font-extrabold">
                                             {settings?.site_name || 'MononKendra'}
                                         </h3>
-                                        <p className="text-sm text-gray-400">
+                                        <p className="text-sm text-purple-400 font-semibold tracking-wide">
                                             {settings?.site_name_bangla || 'জ্ঞান ও প্রজ্ঞার আলো'}
                                         </p>
                                     </div>
