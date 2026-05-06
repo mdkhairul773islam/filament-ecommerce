@@ -10,6 +10,7 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Inertia\Inertia;
 
 class BuyNowController extends Controller
 {
@@ -82,10 +83,10 @@ class BuyNowController extends Controller
 
             DB::commit();
 
-            // SSLCommerz → redirect directly to SSLCommerz init
+            // SSLCommerz → Inertia::location() forces a full browser redirect
+            // (regular redirect() is followed by XHR which is blocked by CORS)
             if ($request->payment_method === 'sslcommerz') {
-                return redirect()->route('payment.sslcommerz.init', $order->id)
-                    ->with('success', 'অর্ডার সফল হয়েছে! পেমেন্ট সম্পন্ন করুন।');
+                return Inertia::location(route('payment.sslcommerz.init', $order->id));
             }
 
             return redirect()->route('payment.show', $order->id)
