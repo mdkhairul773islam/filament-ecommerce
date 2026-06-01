@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Product;
+use App\Services\FacebookCAPIService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -49,9 +50,37 @@ class CartController extends Controller
                 'quantity' => $quantity,
                 'price' => $product->final_price,
             ]);
-
-            return redirect()->route('cart.index')->with('success', '🛒 Product added to cart successfully!');
         }
+
+        $fbEventId = null;
+
+        if (config('facebook.pixel_id')) {
+            $capiService = app(FacebookCAPIService::class);
+            $fbEventId = $capiService->generateEventId();
+            $capiService->sendEvent('AddToCart', $request, [
+                'content_ids' => [(string) $product->id],
+                'content_name' => $product->name,
+                'content_type' => 'product',
+                'value' => (float) $product->final_price,
+                'currency' => 'BDT',
+            ], [], $fbEventId);
+        }
+
+        $fbEvent = $fbEventId ? [
+            'type' => 'AddToCart',
+            'event_id' => $fbEventId,
+            'data' => [
+                'content_ids' => [(string) $product->id],
+                'content_name' => $product->name,
+                'content_type' => 'product',
+                'value' => (float) $product->final_price,
+                'currency' => 'BDT',
+            ],
+        ] : null;
+
+        return redirect()->route('cart.index')
+            ->with('success', '🛒 Product added to cart successfully!')
+            ->with('fb_event', $fbEvent);
     }
 
     public function update(Request $request, CartItem $cartItem)

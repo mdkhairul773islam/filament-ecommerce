@@ -45,6 +45,7 @@ class HandleInertiaRequests extends Middleware
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),
+                'fb_event' => fn () => $request->session()->get('fb_event'),
             ],
             'cartItemsCount' => function () use ($request) {
                 if ($request->user('web')) {
@@ -62,8 +63,8 @@ class HandleInertiaRequests extends Middleware
                 return [
                     'site_name' => Setting::get('site_name', 'MononKendra'),
                     'site_name_bangla' => Setting::get('site_name_bangla', 'জ্ঞান ও প্রজ্ঞার আলো'),
-                    'site_logo' => $site_logo ? asset('storage/' . $site_logo) : null,
-                    'site_favicon' => $site_favicon ? asset('storage/' . $site_favicon) : null,
+                    'site_logo' => $site_logo ? asset('storage/'.$site_logo) : null,
+                    'site_favicon' => $site_favicon ? asset('storage/'.$site_favicon) : null,
                     'contact_phone' => Setting::get('contact_phone', '16297'),
                     'hotline' => Setting::get('hotline', '16297'),
                     'hotline_time' => Setting::get('hotline_time', '9 AM to 8 PM'),

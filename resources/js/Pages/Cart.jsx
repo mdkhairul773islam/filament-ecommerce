@@ -1,11 +1,19 @@
-import { Head, Link, useForm, router } from '@inertiajs/react';
-import { useState } from 'react';
+import { Head, Link, useForm, router, usePage } from '@inertiajs/react';
+import { useState, useEffect } from 'react';
 import Layout from '../Layouts/Layout';
 
 export default function Cart({ auth, cart }) {
+    const { flash } = usePage().props;
     const { delete: destroy } = useForm();
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [itemToDelete, setItemToDelete] = useState(null);
+
+    useEffect(() => {
+        if (typeof fbq !== 'undefined' && flash?.fb_event?.type === 'AddToCart') {
+            const { event_id, data } = flash.fb_event;
+            fbq('track', 'AddToCart', data, { eventID: event_id });
+        }
+    }, [flash?.fb_event]);
 
     const removeFromCart = (itemId) => {
         setItemToDelete(itemId);

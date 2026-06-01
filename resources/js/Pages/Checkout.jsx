@@ -1,7 +1,8 @@
 import { Head, useForm } from '@inertiajs/react';
+import { useEffect } from 'react';
 import Layout from '../Layouts/Layout';
 
-export default function Checkout({ auth, cart, paymentMethods }) {
+export default function Checkout({ auth, cart, paymentMethods, fbEventId }) {
     const { data, setData, post, processing, errors } = useForm({
         customer_name: auth?.user?.name || '',
         customer_email: auth?.user?.email || '',
@@ -14,6 +15,18 @@ export default function Checkout({ auth, cart, paymentMethods }) {
     const total = cart?.items?.reduce((sum, item) => {
         return sum + (parseFloat(item.price) * item.quantity);
     }, 0) || 0;
+
+    useEffect(() => {
+        if (typeof fbq !== 'undefined' && fbEventId) {
+            fbq('track', 'InitiateCheckout', {
+                value: total,
+                currency: 'BDT',
+                num_items: cart?.items?.reduce((sum, item) => sum + item.quantity, 0) || 0,
+                content_ids: cart?.items?.map(item => String(item.product_id)) || [],
+                content_type: 'product',
+            }, { eventID: fbEventId });
+        }
+    }, [fbEventId]);
 
     const handleSubmit = (e) => {
         e.preventDefault();

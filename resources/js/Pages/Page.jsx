@@ -1,8 +1,15 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Head } from '@inertiajs/react';
 import Layout from '@/Layouts/Layout';
 
-export default function Page({ title, content }) {
+export default function Page({ title, content, slug }) {
+    useEffect(() => {
+        if (typeof fbq !== 'undefined' && slug && slug.toLowerCase().includes('contact')) {
+            fbq('track', 'Lead', {
+                content_name: title,
+            });
+        }
+    }, [slug]);
     return (
         <Layout>
             <Head title={title} />

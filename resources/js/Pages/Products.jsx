@@ -1,11 +1,35 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import Layout from '../Layouts/Layout';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
-export default function Products({ auth, products, categories, filters }) {
+export default function Products({ auth, products, categories, filters, fbEventId, fbEventType }) {
     const [selectedCategory, setSelectedCategory] = useState(filters?.category || '');
     const [selectedType, setSelectedType] = useState(filters?.type || '');
+    const [search, setSearch] = useState(filters?.search || '');
 
+    useEffect(() => {
+        if (typeof fbq !== 'undefined' && fbEventId && fbEventType) {
+            if (fbEventType === 'Search') {
+                fbq('track', 'Search', {
+                    search_string: filters?.search,
+                    content_type: 'product',
+                }, { eventID: fbEventId });
+            } else if (fbEventType === 'ViewCategory') {
+                fbq('trackCustom', 'ViewCategory', {
+                    content_category: filters?.category,
+                    content_type: 'product',
+                }, { eventID: fbEventId });
+            }
+        }
+    }, [fbEventId]);
+
+    const applyFilters = (category, type, searchVal) => {
+        const params = new URLSearchParams();
+        if (category) params.set('category', category);
+        if (type) params.set('type', type);
+        if (searchVal) params.set('search', searchVal);
+        window.location.href = `/products?${params.toString()}`;
+    };
     return (
         <Layout>
             <Head title="Products" />
@@ -27,7 +51,7 @@ export default function Products({ auth, products, categories, filters }) {
                                     onChange={(e) => {
                                         const value = e.target.value;
                                         setSelectedCategory(value);
-                                        window.location.href = `/products?category=${value}&type=${selectedType}`;
+                                        applyFilters(value, selectedType, search);
                                     }}
                                     className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                                 >
@@ -49,7 +73,7 @@ export default function Products({ auth, products, categories, filters }) {
                                     onChange={(e) => {
                                         const value = e.target.value;
                                         setSelectedType(value);
-                                        window.location.href = `/products?category=${selectedCategory}&type=${value}`;
+                                        applyFilters(selectedCategory, value, search);
                                     }}
                                     className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                                 >
@@ -58,6 +82,35 @@ export default function Products({ auth, products, categories, filters }) {
                                     <option value="course">Courses</option>
                                 </select>
                             </div>
+                        </div>
+
+                        {/* Search */}
+                        <div className="mt-4">
+                            <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-2">
+                                Search
+                            </label>
+                            <form
+                                onSubmit={(e) => {
+                                    e.preventDefault();
+                                    applyFilters(selectedCategory, selectedType, search);
+                                }}
+                                className="flex gap-2"
+                            >
+                                <input
+                                    id="search"
+                                    type="text"
+                                    value={search}
+                                    onChange={(e) => setSearch(e.target.value)}
+                                    placeholder="Search products..."
+                                    className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                                />
+                                <button
+                                    type="submit"
+                                    className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors whitespace-nowrap"
+                                >
+                                    Search
+                                </button>
+                            </form>
                         </div>
                     </div>
 

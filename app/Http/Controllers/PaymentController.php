@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\PaymentMethod;
+use App\Services\FacebookCAPIService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -68,8 +69,54 @@ class PaymentController extends Controller
 
             DB::commit();
 
+            $fbEventId = null;
+
+            if (config('facebook.pixel_id')) {
+                $order->load('items');
+                $capiService = app(FacebookCAPIService::class);
+                $fbEventId = $capiService->generateEventId();
+
+                $userData = [];
+                if ($order->customer_email) {
+                    $userData['em'] = [FacebookCAPIService::hash($order->customer_email)];
+                }
+                if ($order->customer_phone) {
+                    $userData['ph'] = [FacebookCAPIService::hash($order->customer_phone)];
+                }
+                if ($order->customer_name) {
+                    $nameParts = explode(' ', $order->customer_name);
+                    $userData['fn'] = [FacebookCAPIService::hash($nameParts[0])];
+                    if (count($nameParts) > 1) {
+                        $userData['ln'] = [FacebookCAPIService::hash(end($nameParts))];
+                    }
+                }
+
+                $capiService->sendEvent('Purchase', $request, [
+                    'content_ids' => $order->items->pluck('product_id')->map(fn ($id) => (string) $id)->values()->toArray(),
+                    'content_type' => 'product',
+                    'value' => (float) $order->total,
+                    'currency' => 'BDT',
+                    'order_id' => $order->order_number,
+                    'num_items' => $order->items->sum('quantity'),
+                ], $userData, $fbEventId);
+            }
+
+            $fbEvent = $fbEventId ? [
+                'type' => 'Purchase',
+                'event_id' => $fbEventId,
+                'data' => [
+                    'value' => (float) $order->total,
+                    'currency' => 'BDT',
+                    'order_id' => $order->order_number,
+                    'content_ids' => $order->items->pluck('product_id')->map(fn ($id) => (string) $id)->values()->toArray(),
+                    'content_type' => 'product',
+                    'num_items' => $order->items->sum('quantity'),
+                ],
+            ] : null;
+
             return redirect()->route('orders.show', $order->order_number)
-                ->with('success', 'Payment confirmed successfully. Your order is being processed.');
+                ->with('success', 'Payment confirmed successfully. Your order is being processed.')
+                ->with('fb_event', $fbEvent);
         } catch (\Exception $e) {
             DB::rollBack();
 

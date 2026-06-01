@@ -1,13 +1,22 @@
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
+import { useEffect } from 'react';
 import Layout from '../../Layouts/Layout';
 
 export default function Register() {
+    const { flash } = usePage().props;
     const { data, setData, post, processing, errors } = useForm({
         name: '',
         email: '',
         password: '',
         password_confirmation: '',
     });
+
+    useEffect(() => {
+        if (typeof fbq !== 'undefined' && flash?.fb_event?.type === 'CompleteRegistration') {
+            const { event_id, data: eventData } = flash.fb_event;
+            fbq('track', 'CompleteRegistration', eventData, { eventID: event_id });
+        }
+    }, [flash?.fb_event]);
 
     const submit = (e) => {
         e.preventDefault();

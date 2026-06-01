@@ -1,7 +1,16 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
+import { useEffect } from 'react';
 import Layout from '../../Layouts/Layout';
 
 export default function ShowOrder({ auth, order }) {
+    const { flash } = usePage().props;
+
+    useEffect(() => {
+        if (typeof fbq !== 'undefined' && flash?.fb_event?.type === 'Purchase') {
+            const { event_id, data } = flash.fb_event;
+            fbq('track', 'Purchase', data, { eventID: event_id });
+        }
+    }, [flash?.fb_event]);
     const getStatusColor = (status) => {
         const colors = {
             pending: 'bg-yellow-100 text-yellow-800',

@@ -1,8 +1,16 @@
 import { Head, Link, usePage } from '@inertiajs/react';
+import { useEffect } from 'react';
 import Layout from '../Layouts/Layout';
 
 export default function Dashboard() {
-    const { auth } = usePage().props;
+    const { auth, flash } = usePage().props;
+
+    useEffect(() => {
+        if (typeof fbq !== 'undefined' && flash?.fb_event?.type === 'CompleteRegistration') {
+            const { event_id, data } = flash.fb_event;
+            fbq('track', 'CompleteRegistration', data, { eventID: event_id });
+        }
+    }, [flash?.fb_event]);
 
     return (
         <Layout>

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Setting;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class PageController extends Controller
@@ -15,7 +14,7 @@ class PageController extends Controller
     {
         $setting = Setting::where('key', $slug)->first();
 
-        if (!$setting || $setting->group !== 'pages') {
+        if (! $setting || $setting->group !== 'pages') {
             abort(404);
         }
 
@@ -25,6 +24,7 @@ class PageController extends Controller
         return Inertia::render('Page', [
             'title' => $title,
             'content' => $setting->value,
+            'slug' => $slug,
         ]);
     }
 }

@@ -1,10 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Head, useForm } from '@inertiajs/react';
 import Layout from '../Layouts/Layout';
 
-export default function ProductDetail({ auth, product }) {
+export default function ProductDetail({ auth, product, fbEventId }) {
     const [activeTab, setActiveTab] = useState('summary');
     const [isLookInsideOpen, setIsLookInsideOpen] = useState(false);
+
+    useEffect(() => {
+        if (typeof fbq !== 'undefined' && fbEventId) {
+            fbq('track', 'ViewContent', {
+                content_ids: [String(product.id)],
+                content_name: product.name,
+                content_type: 'product',
+                value: parseFloat(product.final_price || product.price),
+                currency: 'BDT',
+            }, { eventID: fbEventId });
+        }
+    }, [fbEventId]);
 
     const { post, processing } = useForm({
         product_id: product.id,

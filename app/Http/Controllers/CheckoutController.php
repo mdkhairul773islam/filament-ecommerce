@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Payment;
 use App\Models\PaymentMethod;
+use App\Services\FacebookCAPIService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -24,9 +25,25 @@ class CheckoutController extends Controller
 
         $paymentMethods = PaymentMethod::active()->get();
 
+        $fbEventId = null;
+
+        if (config('facebook.pixel_id')) {
+            $capiService = app(FacebookCAPIService::class);
+            $fbEventId = $capiService->generateEventId();
+            $total = $cart->items->sum(fn ($item) => $item->price * $item->quantity);
+            $capiService->sendEvent('InitiateCheckout', request(), [
+                'value' => (float) $total,
+                'currency' => 'BDT',
+                'num_items' => $cart->items->sum('quantity'),
+                'content_ids' => $cart->items->pluck('product_id')->map(fn ($id) => (string) $id)->values()->toArray(),
+                'content_type' => 'product',
+            ], [], $fbEventId);
+        }
+
         return Inertia::render('Checkout', [
             'cart' => $cart->load('items.product'),
             'paymentMethods' => $paymentMethods,
+            'fbEventId' => $fbEventId,
         ]);
     }
 
