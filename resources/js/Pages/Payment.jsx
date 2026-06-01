@@ -6,8 +6,6 @@ export default function Payment({ auth, order, paymentMethod }) {
         transaction_reference: '',
     });
 
-    const isSSLCommerz = paymentMethod?.code === 'sslcommerz' || order?.payment?.payment_method === 'sslcommerz';
-
     const handleConfirm = (e) => {
         e.preventDefault();
         post(`/payment/${order.id}/confirm`);
@@ -176,35 +174,6 @@ export default function Payment({ auth, order, paymentMethod }) {
 
                     {/* Payment Confirmation Form */}
                     <div className="bg-white shadow-xl rounded-2xl p-8 border border-gray-100">
-
-                        {/* SSLCommerz: redirect button */}
-                        {isSSLCommerz ? (
-                            <div className="space-y-6">
-                                <p className="text-gray-600 text-sm text-center">
-                                    আপনি SSLCommerz দিয়ে পেমেন্ট করতে চেয়েছেন। নিচের বোতামটি ক্লিক করুন — <strong>SSLCommerz পেমেন্ট পেজে</strong> নিয়ে যাওয়া হবে।
-                                </p>
-                                <a
-                                    href={`/payment/${order.id}/sslcommerz/init`}
-                                    className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold text-lg py-4 rounded-xl shadow-lg hover:from-indigo-700 hover:to-purple-700 transition-all"
-                                >
-                                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                                    </svg>
-                                    SSLCommerz দিয়ে পেমেন্ট করুন
-                                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                                    </svg>
-                                </a>
-                                <p className="text-xs text-center text-gray-400">Cards / Nagad / Rocket সহ সব ধরনের পেমেন্ট সাপোর্ট করে।</p>
-                                {auth?.user && (
-                                    <div className="text-center">
-                                        <Link href={`/orders/${order.order_number}`} className="text-sm text-gray-500 underline hover:text-gray-700">
-                                            পরে পেমেন্ট করব
-                                        </Link>
-                                    </div>
-                                )}
-                            </div>
-                        ) : (
                         <form onSubmit={handleConfirm} className="space-y-6">
                             {!isCashOnDelivery && (
                                 <div>
@@ -275,9 +244,7 @@ export default function Payment({ auth, order, paymentMethod }) {
                                 </button>
                             </div>
                         </form>
-                        )}
 
-                        {!isSSLCommerz && (
                         <div className="mt-6 border-t-2 border-gray-200 pt-6">
                             <div className="flex items-center justify-center text-sm text-gray-600">
                                 <svg className="w-5 h-5 mr-2 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -289,7 +256,6 @@ export default function Payment({ auth, order, paymentMethod }) {
                                 </p>
                             </div>
                         </div>
-                        )}
                     </div>
 
                     {/* Help Section */}

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
-use App\Models\PaymentMethod;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -44,11 +43,8 @@ class ProductController extends Controller
             ->where('is_active', true)
             ->firstOrFail();
 
-        $paymentMethods = PaymentMethod::active()->get();
-
         return Inertia::render('ProductDetail', [
             'product' => $product,
-            'paymentMethods' => $paymentMethods,
         ]);
     }
 }

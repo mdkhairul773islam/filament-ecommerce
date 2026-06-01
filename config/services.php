@@ -40,10 +40,4 @@ return [
         'token' => env('ULTRAMSG_TOKEN'),
     ],
 
-    'sslcommerz' => [
-        'store_id' => env('SSLC_STORE_ID', 'your_store_id'),
-        'store_password' => env('SSLC_STORE_PASSWORD', 'your_store_password'),
-        'is_live' => env('SSLC_IS_LIVE', false),
-    ],
-
 ];

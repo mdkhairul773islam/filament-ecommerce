@@ -1,0 +1,47 @@
+<IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        Options -MultiViews -Indexes
+    </IfModule>
+
+    RewriteEngine On
+    RewriteCond %{HTTPS} off
+    RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    # ১. ইউআরএল থেকে সরাসরি /public/ লেখা রিমুভ করা (যদি কেউ টাইপ করে)
+    RewriteCond %{THE_REQUEST} /public/([^\s?]*) [NC]
+    RewriteRule ^ %1 [L,R=301]
+
+    # ২. ইন্টারনালি সব রিকোয়েস্ট পাবলিক ফোল্ডারে পাঠানো (ইউজার দেখবে না)
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ public/$1 [L]
+
+    # ৩. অথরাইজেশন হেডার হ্যান্ডেল করা
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+</IfModule>
+<FilesMatch "\.(mp4|webm|ogg|mp3|wav)$">
+    <IfModule mod_authz_core.c>
+        Require all granted
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Allow from all
+    </IfModule>
+</FilesMatch>
+
+# PHP Upload Size Limits
+php_value upload_max_filesize 50M
+php_value post_max_size 50M
+
+# PHP Handler (আপনার সার্ভার অনুযায়ী)
+<IfModule mime_module>
+  AddHandler application/x-httpd-ea-php83 .php .php8 .phtml
+</IfModule>
+
+# php -- BEGIN cPanel-generated handler, do not edit
+# Set the “ea-php81” package as the default “PHP” programming language.
+<IfModule mime_module>
+  AddHandler application/x-httpd-ea-php81 .php .php8 .phtml
+</IfModule>
+# php -- END cPanel-generated handler, do not edit

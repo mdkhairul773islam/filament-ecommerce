@@ -2,50 +2,25 @@ import React, { useState } from 'react';
 import { Head, useForm } from '@inertiajs/react';
 import Layout from '../Layouts/Layout';
 
-export default function ProductDetail({ auth, product, paymentMethods }) {
+export default function ProductDetail({ auth, product }) {
     const [activeTab, setActiveTab] = useState('summary');
     const [isLookInsideOpen, setIsLookInsideOpen] = useState(false);
-    const [isBuyNowOpen, setIsBuyNowOpen] = useState(false);
 
     const { post, processing } = useForm({
         product_id: product.id,
         quantity: 1,
     });
 
-    const { data: buyData, setData: setBuyData, post: buyPost, processing: buyProcessing, errors: buyErrors, reset: buyReset } = useForm({
-        product_id: product.id,
-        customer_name: auth?.user?.name || '',
-        customer_email: auth?.user?.email || '',
-        customer_phone: '',
-        payment_method: 'bkash',
-    });
-
-    const finalPrice = product.discount_price
-        ? (product.discount_type === 'flat'
-            ? (parseFloat(product.price) - parseFloat(product.discount_price)).toFixed(2)
-            : (parseFloat(product.price) * (1 - parseFloat(product.discount_price) / 100)).toFixed(2))
-        : parseFloat(product.price).toFixed(2);
-
     const addToCart = (e) => {
         e.preventDefault();
         post('/cart/add');
-    };
-
-    const handleBuyNow = (e) => {
-        e.preventDefault();
-        buyPost('/buy-now', {
-            onSuccess: () => {
-                setIsBuyNowOpen(false);
-                buyReset('customer_phone');
-            },
-        });
     };
 
     return (
         <Layout>
             <Head title={product.name} />
 
-            <div className="bg-white pb-24">
+            <div className="bg-white">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                     <div className="lg:grid lg:grid-cols-2 lg:gap-x-8 lg:items-start">
                         {/* Image */}
@@ -274,178 +249,6 @@ export default function ProductDetail({ auth, product, paymentMethods }) {
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* ─── Sticky bottom bar ─── */}
-            <div className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 shadow-lg">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
-                    {/* Price */}
-                    <div className="flex flex-col leading-tight">
-                        <span className="text-2xl font-extrabold text-gray-900">৳{finalPrice}</span>
-                        {product.discount_price && (
-                            <span className="text-sm text-gray-400 line-through">৳{parseFloat(product.price).toFixed(2)}</span>
-                        )}
-                    </div>
-
-                    {/* Buy Now button */}
-                    <button
-                        onClick={() => setIsBuyNowOpen(true)}
-                        disabled={product.stock === 0}
-                        className="flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold text-lg px-8 py-3 rounded-full shadow-md hover:from-indigo-700 hover:to-purple-700 disabled:from-gray-400 disabled:to-gray-400 disabled:cursor-not-allowed transition-all"
-                    >
-                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd"/></svg>
-                        {product.stock === 0 ? 'স্টক নেই' : 'এখনই কিনুন'}
-                        {product.stock > 0 && <span>→</span>}
-                    </button>
-                </div>
-            </div>
-
-            {/* ─── Buy Now Modal ─── */}
-            {isBuyNowOpen && (
-                <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
-                    {/* Overlay */}
-                    <div
-                        className="absolute inset-0 bg-black bg-opacity-60 transition-opacity"
-                        onClick={() => setIsBuyNowOpen(false)}
-                    />
-
-                    <div className="relative w-full sm:max-w-md bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl overflow-hidden">
-                        {/* Header */}
-                        <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-gray-100">
-                            <h2 className="text-lg font-bold text-gray-900">অর্ডার কনফার্ম করুন</h2>
-                            <button
-                                onClick={() => setIsBuyNowOpen(false)}
-                                className="text-gray-400 hover:text-gray-700 bg-gray-100 rounded-full p-1.5"
-                            >
-                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
-                        </div>
-
-                        <div className="px-5 py-4 max-h-[80vh] overflow-y-auto">
-                            {/* Product info */}
-                            <div className="flex items-center gap-3 bg-indigo-50 rounded-xl px-4 py-3 mb-5">
-                                <svg className="w-6 h-6 text-indigo-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-semibold text-gray-900 truncate">{product.name}</p>
-                                    <p className="text-sm">
-                                        <span className="font-bold text-indigo-600">৳{finalPrice}</span>
-                                        {product.discount_price && (
-                                            <span className="ml-2 text-gray-400 line-through text-xs">৳{parseFloat(product.price).toFixed(2)}</span>
-                                        )}
-                                    </p>
-                                </div>
-                            </div>
-
-                            <form onSubmit={handleBuyNow} className="space-y-4">
-                                {/* Name */}
-                                <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-1">আপনার নাম</label>
-                                    <input
-                                        type="text"
-                                        value={buyData.customer_name}
-                                        onChange={(e) => setBuyData('customer_name', e.target.value)}
-                                        placeholder="Example: Sabbir Ahmed"
-                                        required
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                                    />
-                                    {buyErrors.customer_name && <p className="text-red-500 text-xs mt-1">{buyErrors.customer_name}</p>}
-                                </div>
-
-                                {/* Email */}
-                                <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-1">ইমেইল <span className="font-normal text-gray-400">(বইয়ের ডাউনলোড লিংক যাবে)</span></label>
-                                    <input
-                                        type="email"
-                                        value={buyData.customer_email}
-                                        onChange={(e) => setBuyData('customer_email', e.target.value)}
-                                        placeholder="name@example.com"
-                                        required
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                                    />
-                                    {buyErrors.customer_email && <p className="text-red-500 text-xs mt-1">{buyErrors.customer_email}</p>}
-                                </div>
-
-                                {/* Phone */}
-                                <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-1">মোবাইল নাম্বার</label>
-                                    <input
-                                        type="tel"
-                                        value={buyData.customer_phone}
-                                        onChange={(e) => setBuyData('customer_phone', e.target.value)}
-                                        placeholder="017XXXXXXXX"
-                                        required
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                                    />
-                                    {buyErrors.customer_phone && <p className="text-red-500 text-xs mt-1">{buyErrors.customer_phone}</p>}
-                                </div>
-
-                                {/* Payment method */}
-                                {paymentMethods?.length > 0 && (
-                                    <div>
-                                        <label className="block text-sm font-semibold text-gray-700 mb-2">পেমেন্ট মেথড সিলেক্ট করুন</label>
-                                        <div className="grid grid-cols-2 gap-3">
-                                            {/* bKash */}
-                                            {paymentMethods.filter(m => m.code === 'bkash').map((method) => (
-                                                <button
-                                                    key={method.id}
-                                                    type="button"
-                                                    onClick={() => setBuyData('payment_method', method.code)}
-                                                    className={`flex flex-col items-center justify-center py-4 px-2 rounded-xl border-2 font-bold text-sm transition-all ${
-                                                        buyData.payment_method === method.code
-                                                            ? 'border-pink-500 bg-pink-50'
-                                                            : 'border-gray-200 bg-white hover:border-pink-300'
-                                                    }`}
-                                                >
-                                                    <span className="font-extrabold text-lg text-pink-600">bKash</span>
-                                                    <span className="text-xs font-normal text-gray-400 mt-0.5">পেমেন্ট</span>
-                                                </button>
-                                            ))}
-                                            {/* SSLCommerz */}
-                                            <button
-                                                type="button"
-                                                onClick={() => setBuyData('payment_method', 'sslcommerz')}
-                                                className={`flex flex-col items-center justify-center py-4 px-2 rounded-xl border-2 font-bold text-sm transition-all ${
-                                                    buyData.payment_method === 'sslcommerz'
-                                                        ? 'border-indigo-500 bg-indigo-50'
-                                                        : 'border-gray-200 bg-white hover:border-indigo-300'
-                                                }`}
-                                            >
-                                                <span className="font-extrabold text-base text-gray-800">SSLCommerz</span>
-                                                <span className="text-xs font-normal text-gray-400 mt-0.5">Cards / Nagad / Rocket</span>
-                                            </button>
-                                        </div>
-                                        {buyErrors.payment_method && <p className="text-red-500 text-xs mt-1">{buyErrors.payment_method}</p>}
-                                    </div>
-                                )}
-
-                                {/* Submit */}
-                                <button
-                                    type="submit"
-                                    disabled={buyProcessing}
-                                    className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold text-lg py-4 rounded-2xl shadow-md hover:from-indigo-700 hover:to-purple-700 disabled:opacity-60 disabled:cursor-not-allowed transition-all mt-2"
-                                >
-                                    {buyProcessing ? (
-                                        <>
-                                            <svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
-                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
-                                            </svg>
-                                            প্রসেস হচ্ছে...
-                                        </>
-                                    ) : (
-                                        <>পরবর্তী ধাপ →</>
-                                    )}
-                                </button>
-
-                                <p className="text-center text-xs text-gray-400">By clicking Next, you agree to our Terms &amp; Conditions.</p>
-                            </form>
                         </div>
                     </div>
                 </div>
