@@ -76,3 +76,11 @@ Route::get('/optimize-clear', function () {
     Artisan::call('optimize:clear');
     return "Optimize clear successfully!";
 });
+
+Route::get('/check-pixel', function () {
+    return response()->json([
+        'pixel_id' => config('facebook.pixel_id') ? 'SET ✅' : 'MISSING ❌',
+        'access_token' => config('facebook.access_token') ? 'SET ✅' : 'MISSING ❌',
+        'test_event_code' => config('facebook.test_event_code') ?: 'empty (production mode ✅)',
+    ]);
+});
