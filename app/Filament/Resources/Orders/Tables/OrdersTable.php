@@ -8,6 +8,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Notifications\Notification;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -130,12 +131,24 @@ class OrdersTable
                     ->action(function ($record): void {
                         $record->load('items.product');
 
-                        Mail::to($record->customer_email)
-                            ->send(new OrderDigitalProductMail($record));
+                        try {
+                            Mail::to($record->customer_email)
+                                ->send(new OrderDigitalProductMail($record));
 
-                        $record->update(['digital_sent_at' => now()]);
+                            $record->update(['digital_sent_at' => now()]);
+
+                            Notification::make()
+                                ->title('Email sent successfully!')
+                                ->success()
+                                ->send();
+                        } catch (\Exception $e) {
+                            Notification::make()
+                                ->title('Failed to send email')
+                                ->body($e->getMessage())
+                                ->danger()
+                                ->send();
+                        }
                     })
-                    ->successNotificationTitle('Email sent successfully!')
                     ->visible(fn ($record): bool => $record->payment?->status === 'completed'
                         && $record->items->some(
                             fn ($item) => $item->product && $item->product->digital_file
