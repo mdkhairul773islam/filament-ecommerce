@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\EmailTemplate;
 use App\Models\Order;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -24,15 +25,66 @@ class WhatsAppService
             return;
         }
 
-        $productList = $digitalProducts->map(
-            fn ($item) => '• '.$item->product_name
-        )->implode("\n");
+        $template = EmailTemplate::getByName('whatsapp_order_digital_product');
 
-        $message = "আসসালামু আলাইকুম {$order->customer_name}! 👋\n\n"
-            ."আপনার অর্ডার *#{$order->order_number}* সফলভাবে গ্রহণ করা হয়েছে।\n\n"
-            ."আপনার ক্রয়কৃত ডিজিটাল পণ্যসমূহ:\n{$productList}\n\n"
-            ."📧 আপনার ইমেইলে ({$order->customer_email}) PDF ফাইলগুলো পাঠানো হয়েছে।\n\n"
-            .'ধন্যবাদ আমাদের সাথে কেনাকাটা করার জন্য! 🙏';
+        if (! $template) {
+            // Fallback to hardcoded message if template not found
+            $this->sendFallbackMessage($order, $digitalProducts, $phone);
+            return;
+        }
+
+        $greeting = $template->greeting ?? 'প্রিয় স্যার/ম্যাডাম';
+        
+        $orderPrefix = $template->getMeta('order_prefix', 'অর্ডার নম্বর:');
+        
+        $productBullet = $template->getMeta('product_bullet', '•');
+        $productListTitle = $template->getMeta('product_list_title', 'আপনার ক্রয়কৃত পণ্যসমূহ:');
+        
+        $productList = $digitalProducts->map(function ($item) use ($productBullet) {
+            $quantity = $item->quantity > 1 ? " (x{$item->quantity})" : '';
+            return "{$productBullet} {$item->product_name}{$quantity}";
+        })->implode("\n");
+
+        $totalLabel = $template->getMeta('total_label', 'মোট মূল্য:');
+        
+        $emailSentLine = $template->getMeta('email_sent_line1', 'আপনার ডিজিটাল ফাইল(গুলো) আপনার ইমেইলে পাঠানো হয়েছে।');
+        $emailAddressLabel = $template->getMeta('email_address_label', 'ইমেইল:');
+        $checkInbox = $template->getMeta('check_inbox', 'দয়া করে আপনার *Inbox* চেক করুন।');
+        $checkSpam = $template->getMeta('check_spam', 'যদি ইমেইল না পান তাহলে *Spam/Junk* ফোল্ডার চেক করুন।');
+
+        $message = "{$greeting},\n\n"
+            ."{$orderPrefix} *{$order->order_number}*\n\n"
+            ."{$productListTitle}\n{$productList}\n\n"
+            ."{$totalLabel} *৳".number_format($order->total, 2)."*\n\n"
+            ."─────────────────────\n\n"
+            ."{$emailSentLine}\n"
+            ."{$emailAddressLabel} {$order->customer_email}\n\n"
+            ."{$checkInbox}\n"
+            ."{$checkSpam}\n\n"
+            ."─────────────────────\n\n"
+            .($template->closing ?? 'আমাদের সাথে কেনাকাটা করার জন্য আপনাকে ধন্যবাদ!');
+
+        $this->send($phone, $message);
+    }
+
+    private function sendFallbackMessage(Order $order, $digitalProducts, string $phone): void
+    {
+        $productList = $digitalProducts->map(function ($item) {
+            $quantity = $item->quantity > 1 ? " (x{$item->quantity})" : '';
+            return "• {$item->product_name}{$quantity}";
+        })->implode("\n");
+
+        $message = "প্রিয় স্যার/ম্যাডাম,\n\n"
+            ."অর্ডার নম্বর: *{$order->order_number}*\n\n"
+            ."আপনার ক্রয়কৃত পণ্যসমূহ:\n{$productList}\n\n"
+            ."মোট মূল্য: *৳".number_format($order->total, 2)."*\n\n"
+            ."─────────────────────\n\n"
+            ."আপনার ডিজিটাল ফাইল(গুলো) আপনার ইমেইলে পাঠানো হয়েছে।\n"
+            ."ইমেইল: {$order->customer_email}\n\n"
+            ."দয়া করে আপনার *Inbox* চেক করুন।\n"
+            ."যদি ইমেইল না পান তাহলে *Spam/Junk* ফোল্ডার চেক করুন।\n\n"
+            ."─────────────────────\n\n"
+            .'আমাদের সাথে কেনাকাটা করার জন্য আপনাকে ধন্যবাদ!';
 
         $this->send($phone, $message);
     }

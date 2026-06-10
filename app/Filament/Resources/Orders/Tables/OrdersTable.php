@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Orders\Tables;
 
 use App\Mail\OrderDigitalProductMail;
+use App\Models\EmailTemplate;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -163,15 +164,55 @@ class OrdersTable
                             $phone = '880'.substr($phone, 1);
                         }
 
-                        $productList = $record->items->map(
-                            fn ($item) => '• '.$item->product_name.' (x'.$item->quantity.')'
-                        )->implode("\n");
+                        $template = EmailTemplate::getByName('whatsapp_order_digital_product');
 
-                        $message = "আসসালামু আলাইকুম {$record->customer_name}! 👋\n\n"
-                            ."আপনার অর্ডার *#{$record->order_number}* সফলভাবে গ্রহণ করা হয়েছে।\n\n"
-                            ."আপনার ক্রয়কৃত পণ্যসমূহ:\n{$productList}\n\n"
-                            .'মোট: ৳'.number_format($record->total, 2)."\n\n"
-                            .'ধন্যবাদ আমাদের সাথে কেনাকাটা করার জন্য! 🙏';
+                        if ($template) {
+                            $greeting = $template->greeting ?? 'প্রিয় স্যার/ম্যাডাম';
+                            $orderPrefix = $template->getMeta('order_prefix', 'অর্ডার নম্বর:');
+                            $productBullet = $template->getMeta('product_bullet', '•');
+                            $productListTitle = $template->getMeta('product_list_title', 'আপনার ক্রয়কৃত পণ্যসমূহ:');
+                            
+                            $productList = $record->items->map(function ($item) use ($productBullet) {
+                                $quantity = $item->quantity > 1 ? " (x{$item->quantity})" : '';
+                                return "{$productBullet} {$item->product_name}{$quantity}";
+                            })->implode("\n");
+
+                            $totalLabel = $template->getMeta('total_label', 'মোট মূল্য:');
+                            $emailSentLine = $template->getMeta('email_sent_line1', 'আপনার ডিজিটাল ফাইল(গুলো) আপনার ইমেইলে পাঠানো হয়েছে।');
+                            $emailAddressLabel = $template->getMeta('email_address_label', 'ইমেইল:');
+                            $checkInbox = $template->getMeta('check_inbox', 'দয়া করে আপনার *Inbox* চেক করুন।');
+                            $checkSpam = $template->getMeta('check_spam', 'যদি ইমেইল না পান তাহলে *Spam/Junk* ফোল্ডার চেক করুন।');
+
+                            $message = "{$greeting},\n\n"
+                                ."{$orderPrefix} *{$record->order_number}*\n\n"
+                                ."{$productListTitle}\n{$productList}\n\n"
+                                ."{$totalLabel} *৳".number_format($record->total, 2)."*\n\n"
+                                ."─────────────────────\n\n"
+                                ."{$emailSentLine}\n"
+                                ."{$emailAddressLabel} {$record->customer_email}\n\n"
+                                ."{$checkInbox}\n"
+                                ."{$checkSpam}\n\n"
+                                ."─────────────────────\n\n"
+                                .($template->closing ?? 'আমাদের সাথে কেনাকাটা করার জন্য আপনাকে ধন্যবাদ!');
+                        } else {
+                            // Fallback
+                            $productList = $record->items->map(function ($item) {
+                                $quantity = $item->quantity > 1 ? " (x{$item->quantity})" : '';
+                                return "• {$item->product_name}{$quantity}";
+                            })->implode("\n");
+
+                            $message = "প্রিয় স্যার/ম্যাডাম,\n\n"
+                                ."অর্ডার নম্বর: *{$record->order_number}*\n\n"
+                                ."আপনার ক্রয়কৃত পণ্যসমূহ:\n{$productList}\n\n"
+                                ."মোট মূল্য: *৳".number_format($record->total, 2)."*\n\n"
+                                ."─────────────────────\n\n"
+                                ."আপনার ডিজিটাল ফাইল(গুলো) আপনার ইমেইলে পাঠানো হয়েছে।\n"
+                                ."ইমেইল: {$record->customer_email}\n\n"
+                                ."দয়া করে আপনার *Inbox* চেক করুন।\n"
+                                ."যদি ইমেইল না পান তাহলে *Spam/Junk* ফোল্ডার চেক করুন।\n\n"
+                                ."─────────────────────\n\n"
+                                .'আমাদের সাথে কেনাকাটা করার জন্য আপনাকে ধন্যবাদ!';
+                        }
 
                         return 'https://wa.me/'.$phone.'?text='.rawurlencode($message);
                     })
