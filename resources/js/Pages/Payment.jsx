@@ -20,7 +20,7 @@ export default function Payment({ auth, order, paymentMethod }) {
                     steps: [
                         'Open your bKash app',
                         'Select "Send Money"',
-                        `Enter merchant number: ${merchantNumber}`,
+                        `Enter ${paymentMethod?.name || 'bKash'} number: ${merchantNumber}`,
                         `Enter amount: ৳${order.total}`,
                         'Enter your PIN and confirm',
                         'Note down the transaction ID',
@@ -34,7 +34,7 @@ export default function Payment({ auth, order, paymentMethod }) {
                     steps: [
                         'Dial *322# from your mobile',
                         'Select "Payment"',
-                        `Enter merchant number: ${merchantNumber}`,
+                        `Enter ${paymentMethod?.name || 'Rocket'} number: ${merchantNumber}`,
                         `Enter amount: ৳${order.total}`,
                         'Enter your PIN and confirm',
                         'Note down the transaction ID',
@@ -48,7 +48,7 @@ export default function Payment({ auth, order, paymentMethod }) {
                     steps: [
                         'Open your Nagad app',
                         'Select "Send Money"',
-                        `Enter merchant number: ${merchantNumber}`,
+                        `Enter ${paymentMethod?.name || 'Nagad'} number: ${merchantNumber}`,
                         `Enter amount: ৳${order.total}`,
                         'Enter your PIN and confirm',
                         'Note down the transaction ID',
