@@ -11,9 +11,9 @@ export default function Payment({ auth, order, paymentMethod }) {
         post(`/payment/${order.id}/confirm`);
     };
 
+    const merchantNumber = paymentMethod?.config?.merchant_number || paymentMethod?.config?.['Personal Number'] || paymentMethod?.config?.personal_number || '01XXXXXXXXX';
+
     const getPaymentInstructions = () => {
-        const merchantNumber = paymentMethod?.config?.merchant_number || '01XXXXXXXXX';
-        
         switch (paymentMethod?.code) {
             case 'bkash':
                 return {
@@ -116,6 +116,9 @@ export default function Payment({ auth, order, paymentMethod }) {
                             </h2>
                             <p className="mt-1 text-sm text-indigo-100">
                                 Payment Method: <span className="font-bold text-white">{paymentMethod?.name}</span>
+                                {!isCashOnDelivery && (
+                                    <span className="font-medium text-indigo-100 ml-1">({merchantNumber})</span>
+                                )}
                             </p>
                         </div>
 
