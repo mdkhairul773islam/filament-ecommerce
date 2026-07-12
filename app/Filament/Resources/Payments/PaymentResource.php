@@ -154,12 +154,12 @@ class PaymentResource extends Resource
     {
         return $table
             ->recordTitleAttribute('transaction_id')
+            ->recordAction(EditAction::class)
             ->columns([
                 TextColumn::make('transaction_id')
                     ->searchable()
                     ->sortable()
-                    ->label('Transaction ID')
-                    ->copyable(),
+                    ->label('Transaction ID'),
 
                 TextColumn::make('order.order_number')
                     ->searchable()
@@ -229,8 +229,8 @@ class PaymentResource extends Resource
                     ]),
             ])
             ->recordActions([
-                ViewAction::make(),
                 EditAction::make(),
+                ViewAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

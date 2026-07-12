@@ -54,12 +54,11 @@ class PaymentController extends Controller
             // Update payment status and transaction ID
             $payment->update([
                 'transaction_id' => $request->transaction_reference ?: $payment->transaction_id,
-                'status' => 'completed',
-                'paid_at' => now(),
-                'payment_details' => [
+                'status' => 'pending',
+                'payment_details' => array_merge($payment->payment_details ?? [], [
                     'transaction_reference' => $request->transaction_reference,
-                    'confirmed_at' => now()->toDateTimeString(),
-                ],
+                    'submitted_at' => now()->toDateTimeString(),
+                ]),
             ]);
 
             // Update order status
